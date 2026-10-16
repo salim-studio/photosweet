@@ -1,0 +1,78 @@
+name: Web (GitHub Pages)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/photocraft-web/**"
+      - "apps/photocraft-web-boot/**"
+      - "crates/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "packaging/web/**"
+      - ".github/workflows/web-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    timeout-minutes: 180
+    name: Build web bundle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - name: Install Trunk
+        run: cargo install trunk --locked
+      - name: Build static site
+        run: bash packaging/web/package.sh
+      - name: Unpack site for Pages
+        run: |
+          set -euo pipefail
+          f=(dist/release/photocraft-web-*.zip)
+          python3 - "$f" <<'EOF'
+          import sys, zipfile, pathlib
+          zippath = pathlib.Path(sys.argv[1])
+          out = pathlib.Path("site")
+          out.mkdir(exist_ok=True)
+          with zipfile.ZipFile(zippath) as z:
+              names = z.namelist()
+              prefix = names[0].split("/")[0] + "/"
+              for n in names:
+                  rel = n[len(prefix):] if n.startswith(prefix) else n
+                  if not rel:
+                      continue
+                  dest = out / rel
+                  if n.endswith("/"):
+                      dest.mkdir(parents=True, exist_ok=True)
+                  else:
+                      dest.parent.mkdir(parents=True, exist_ok=True)
+                      dest.write_bytes(z.read(n))
+          print("unpacked", zippath, "-> site/")
+          EOF
+          ls site/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
