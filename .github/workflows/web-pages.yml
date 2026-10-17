@@ -40,8 +40,8 @@ jobs:
       - name: Unpack site for Pages
         run: |
           set -euo pipefail
-          f=(dist/release/photosweet-web-*.zip)
-          python3 - "$f" <<'EOF'
+          zip=$(find dist/release -maxdepth 1 -name 'photosweet-web-*.zip' -print -quit)
+          python3 - "$zip" <<'EOF'
           import sys, zipfile, pathlib
           zippath = pathlib.Path(sys.argv[1])
           out = pathlib.Path("site")
