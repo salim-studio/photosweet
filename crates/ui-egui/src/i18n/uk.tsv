@@ -510,8 +510,6 @@
 	PhotoSweet Website	Вебсайт PhotoSweet
 	PhotoSweet on GitHub	PhotoSweet на GitHub
 	Report an Issue…	Повідомити про проблему…
-	PhotoSweet Website	Вебсайт PhotoSweet
-	Join the PhotoSweet GitHub…	Приєднатися до GitHub PhotoSweet…
 	System Info…	Інформація про систему…
 
 # Tools and options bar
@@ -1648,9 +1646,7 @@
 	Preserve Transparency	Зберігати прозорість
 	Reverse	Зворотний
 	Align with layer	Вирівняти за шаром
-	Join us on GitHub	Приєднуйтеся до нас у GitHub
 	PhotoSweet website	Вебсайт PhotoSweet
-	PhotoSweet	PhotoSweet
 	GitHub	GitHub
 	No character style	Без стилю символів
 	No author	Автор відсутній
@@ -2080,7 +2076,6 @@
 	Delete tool preset	Видалити набір інструмента
 	Depth Jitter	Коливання глибини
 	Discontiguous	Несуміжні
-	GitHub	GitHub
 	Display P3	Display P3
 	Display Text	Показувати текст
 	Divide…	Розділити…
@@ -3332,7 +3327,6 @@ cameraRaw	Masking	Маскування
 	Custom Pixel Aspect Ratio	Довільне співвідношення сторін пікселя
 	32-bit Preview Options	Параметри 32-бітного перегляду
 	New Guide	Нова напрямна
-	Join the PhotoSweet GitHub	Приєднатися до GitHub PhotoSweet
 	Report an Issue	Повідомити про проблему
 	WIA Support	Підтримка WIA
 	Load Files into Stack	Завантажити файли у стос

@@ -790,8 +790,6 @@
 	About PhotoSweet	Informazioni su PhotoSweet
 	PhotoSweet Website	Sito web PhotoSweet
 	PhotoSweet on GitHub	PhotoSweet su GitHub
-	PhotoSweet Website	Sito web PhotoSweet
-	Join the PhotoSweet GitHub…	Unisciti al GitHub di PhotoSweet…
 	Report an Issue…	Segnala un problema…
 	WIA Support…	Supporto WIA…
 	Apply	Applica
@@ -1078,7 +1076,6 @@
 	Diffusion	Diffusione
 	Discard the embedded profile (don't color manage)	Scarta profilo incorporato (non gestire colore)
 	Discontiguous	Non contiguo
-	GitHub	GitHub
 	Dismiss	Chiudi
 	Display P3	Display P3
 	Display Text	Mostra testo
@@ -1211,7 +1208,6 @@
 	Invert All	Inverti tutto
 	Invert has no settings.	Inverti non ha impostazioni.
 	Italic	Corsivo
-	Join us on GitHub	Unisciti al nostro GitHub
 	Justify all	Giustifica tutto
 	Justify last centered	Giustifica ultimo centrato
 	Justify last left	Giustifica ultimo a sinistra
@@ -1617,7 +1613,6 @@
 	Apple Watch 45mm	Apple Watch 45mm
 	Aqua	Acqua
 	Art & Illustration	Arte e illustrazione
-	PhotoSweet	PhotoSweet
 	Background Eraser Tool	Strumento Gomma per sfondo
 	Bevel & Emboss	Smusso e rilievo
 	Blend Mode	Metodo di fusione
@@ -3517,7 +3512,6 @@ layerLabel	No Color	Nessun colore
 	Custom Pixel Aspect Ratio	Proporzioni pixel personalizzate
 	32-bit Preview Options	Opzioni anteprima 32 bit
 	New Guide	Nuova guida
-	Join the PhotoSweet GitHub	Unisciti al GitHub di PhotoSweet
 	Report an Issue	Segnala un problema
 	Load Files into Stack	Carica file in pila
 	Statistics	Statistiche
@@ -4070,7 +4064,6 @@ navigator	Zoom	Zoom
 	on	attivo
 	off	disattivo
 	This adjustment ({key}) is kept as imported and can't be edited yet.	Questa regolazione ({key}) resta come è stata importata e non si può ancora modificare.
-	Join the PhotoSweet GitHub ({url})	Unisciti al GitHub di PhotoSweet ({url})
 	{index} of {total}	{index} di {total}
 	{shortcut} assigned.	{shortcut} assegnata.
 	{shortcut} is already in use by {commands} and will be removed from it when you click OK.	{shortcut} è già usata da {commands} e verrà rimossa quando fai clic su OK.

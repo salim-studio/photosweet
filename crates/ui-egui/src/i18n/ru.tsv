@@ -533,8 +533,6 @@
 	PhotoSweet Website	Сайт PhotoSweet
 	PhotoSweet on GitHub	PhotoSweet на GitHub
 	Report an Issue…	Сообщить о проблеме…
-	PhotoSweet Website	Сайт PhotoSweet
-	Join the PhotoSweet GitHub…	GitHub сообщества PhotoSweet…
 	System Info…	Информация о системе…
 
 # Tools and options bar
@@ -1670,9 +1668,7 @@
 	Preserve Transparency	Сохранить прозрачность
 	Reverse	Обратить
 	Align with layer	По слою
-	Join us on GitHub	Мы в GitHub
 	PhotoSweet website	Сайт PhotoSweet
-	PhotoSweet	PhotoSweet
 	GitHub	GitHub
 	No character style	Нет стиля символов
 	No author	Нет автора
@@ -2097,7 +2093,6 @@
 	Delete tool preset	Удалить набор инструментов
 	Depth Jitter	Колебание глубины
 	Discontiguous	Несмежные пикселы
-	GitHub	GitHub
 	Display P3	Display P3
 	Display Text	Показывать текст
 	Divide…	Деление…
