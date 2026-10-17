@@ -1,5 +1,5 @@
 [package]
-name = "photocraft-engine"
+name = "photosweet-engine"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -12,41 +12,41 @@ workspace = true
 corpus = []
 
 [dependencies]
-photocraft-geom = { workspace = true }
-photocraft-color = { workspace = true }
-photocraft-cms = { workspace = true }
-photocraft-raster = { workspace = true }
-photocraft-doc = { workspace = true }
-photocraft-ops = { workspace = true }
-photocraft-compose = { workspace = true }
+photosweet-geom = { workspace = true }
+photosweet-color = { workspace = true }
+photosweet-cms = { workspace = true }
+photosweet-raster = { workspace = true }
+photosweet-doc = { workspace = true }
+photosweet-ops = { workspace = true }
+photosweet-compose = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 rayon = { workspace = true }
-photocraft-paint = { workspace = true }
-photocraft-algo = { workspace = true }
-photocraft-text = { workspace = true }
-photocraft-vector = { workspace = true }
-photocraft-io = { workspace = true }
-photocraft-psd = { workspace = true }
-photocraft-format = { workspace = true }
-photocraft-plugins = { workspace = true }
+photosweet-paint = { workspace = true }
+photosweet-algo = { workspace = true }
+photosweet-text = { workspace = true }
+photosweet-vector = { workspace = true }
+photosweet-io = { workspace = true }
+photosweet-psd = { workspace = true }
+photosweet-format = { workspace = true }
+photosweet-plugins = { workspace = true }
 blake3 = { version = "1.8", default-features = false, features = ["pure"] }
-photocraft-codecs = { workspace = true }
+photosweet-codecs = { workspace = true }
 flate2 = { workspace = true }
 craft-print = { workspace = true }
 
 # Photoshop `.kys` shortcut sets (`edit.keyboardShortcuts` `importKys`); already in the tree
-# through photocraft-ui-egui and usvg.
+# through photosweet-ui-egui and usvg.
 roxmltree = "0.20"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tempfile = "3"
 
 [dev-dependencies]
-photocraft-affinity = { workspace = true, features = ["synth"] }
+photosweet-affinity = { workspace = true, features = ["synth"] }
 # Synthetic camera raw files for the open tests.
-photocraft-raw = { workspace = true, features = ["testgen"] }
+photosweet-raw = { workspace = true, features = ["testgen"] }
 # WebAssembly text -> binary for plug-in test modules (Apache-2.0 WITH LLVM-exception).
 wat = "1.228"
 # Synthetic multi-part EXR fixtures for the parts-commands tests.

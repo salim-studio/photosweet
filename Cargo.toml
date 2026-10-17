@@ -1,7 +1,7 @@
 [workspace]
 resolver = "3"
 members = ["crates/*", "apps/*", "xtask"]
-default-members = ["crates/*", "apps/photocraft", "apps/photocraft-cli", "xtask"]
+default-members = ["crates/*", "apps/photosweet", "apps/photosweet-cli", "xtask"]
 
 [workspace.package]
 version = "0.9.0"
@@ -12,30 +12,30 @@ rust-version = "1.95"
 [workspace.dependencies]
 craft-ui = { git = "https://github.com/storytold/craft-libs", rev = "5c874d51eeb3de70e735c8ce87a59a7dedd47675", features = ["serde"] }
 # internal
-photocraft-geom = { path = "crates/geom" }
-photocraft-color = { path = "crates/color" }
-photocraft-cms = { path = "crates/cms" }
-photocraft-raster = { path = "crates/raster" }
-photocraft-doc = { path = "crates/doc" }
-photocraft-ops = { path = "crates/ops" }
-photocraft-psd = { path = "crates/psd" }
-photocraft-codecs = { path = "crates/codecs" }
-photocraft-raw = { path = "crates/raw" }
-photocraft-affinity = { path = "crates/affinity" }
-photocraft-compose = { path = "crates/compose" }
-photocraft-gpu = { path = "crates/gpu" }
-photocraft-paint = { path = "crates/paint" }
-photocraft-algo = { path = "crates/algo" }
-photocraft-io = { path = "crates/io" }
-photocraft-text = { path = "crates/text" }
-photocraft-vector = { path = "crates/vector" }
-photocraft-format = { path = "crates/format" }
-photocraft-automation = { path = "crates/automation" }
-photocraft-plugins = { path = "crates/plugins" }
-photocraft-engine = { path = "crates/engine" }
-photocraft-ui-egui = { path = "crates/ui-egui" }
-photocraft-testkit = { path = "crates/testkit" }
-photocraft-tablet = { path = "crates/tablet" }
+photosweet-geom = { path = "crates/geom" }
+photosweet-color = { path = "crates/color" }
+photosweet-cms = { path = "crates/cms" }
+photosweet-raster = { path = "crates/raster" }
+photosweet-doc = { path = "crates/doc" }
+photosweet-ops = { path = "crates/ops" }
+photosweet-psd = { path = "crates/psd" }
+photosweet-codecs = { path = "crates/codecs" }
+photosweet-raw = { path = "crates/raw" }
+photosweet-affinity = { path = "crates/affinity" }
+photosweet-compose = { path = "crates/compose" }
+photosweet-gpu = { path = "crates/gpu" }
+photosweet-paint = { path = "crates/paint" }
+photosweet-algo = { path = "crates/algo" }
+photosweet-io = { path = "crates/io" }
+photosweet-text = { path = "crates/text" }
+photosweet-vector = { path = "crates/vector" }
+photosweet-format = { path = "crates/format" }
+photosweet-automation = { path = "crates/automation" }
+photosweet-plugins = { path = "crates/plugins" }
+photosweet-engine = { path = "crates/engine" }
+photosweet-ui-egui = { path = "crates/ui-egui" }
+photosweet-testkit = { path = "crates/testkit" }
+photosweet-tablet = { path = "crates/tablet" }
 
 # external
 craft-print = { git = "https://github.com/storytold/craft-libs", rev = "3d37da389a3618ab9b76109da11416e9ca4ea719" }
@@ -84,16 +84,16 @@ debug = "line-tables-only"
 # tests run no heavier pixel code of their own (that lives in the crates that stay optimized).
 # Measured on CI: Windows build 18.9 -> 15.4 min, test run 10.0 -> 10.5. `cargo run` and
 # `cargo build` use the dev profile and are unaffected.
-[profile.test.package.photocraft-ui-egui]
+[profile.test.package.photosweet-ui-egui]
 opt-level = 0
 
 [profile.release]
 lto = "thin"
 codegen-units = 1
 
-# The browser build (apps/photocraft-web, `data-cargo-profile` in its index.html). Hosts cap the
+# The browser build (apps/photosweet-web, `data-cargo-profile` in its index.html). Hosts cap the
 # size of a single file (Cloudflare Pages/Workers: 25 MiB), and the wasm is downloaded on every
-# visit, so this profile optimizes for size: fat LTO, opt-level "z" for PhotoCraft's own crates,
+# visit, so this profile optimizes for size: fat LTO, opt-level "z" for PhotoSweet's own crates,
 # "s" for dependencies and for the crates that decode files, and 3 for pixel processing (filters
 # and compositing). Dependencies stay at "s": at "z" the whole wasm grows (by 0.4 MB, measured).
 # panic stays the target default (wasm32-unknown-unknown aborts; AGENTS.md's `panic = "unwind"`
@@ -109,25 +109,25 @@ strip = "debuginfo"
 opt-level = "s"
 
 # Decoding and rasterizing keep their speed.
-[profile.wasm-release.package.photocraft-codecs]
+[profile.wasm-release.package.photosweet-codecs]
 opt-level = "s"
-[profile.wasm-release.package.photocraft-raw]
+[profile.wasm-release.package.photosweet-raw]
 opt-level = "s"
-[profile.wasm-release.package.photocraft-heif]
+[profile.wasm-release.package.photosweet-heif]
 opt-level = "s"
-[profile.wasm-release.package.photocraft-vector]
+[profile.wasm-release.package.photosweet-vector]
 opt-level = "s"
 
 # Large crates off the per-frame and per-pixel paths: the document model, file parsers run once
 # per open/save, JSON (settings, presets, control channel), SVG parsing, and shader translation
 # (runs when a pipeline is created). "z" keeps the wasm well under the size gate.
-[profile.wasm-release.package.photocraft-doc]
+[profile.wasm-release.package.photosweet-doc]
 opt-level = "z"
-[profile.wasm-release.package.photocraft-psd]
+[profile.wasm-release.package.photosweet-psd]
 opt-level = "z"
-[profile.wasm-release.package.photocraft-format]
+[profile.wasm-release.package.photosweet-format]
 opt-level = "z"
-[profile.wasm-release.package.photocraft-affinity]
+[profile.wasm-release.package.photosweet-affinity]
 opt-level = "z"
 [profile.wasm-release.package.serde_json]
 opt-level = "z"
@@ -144,16 +144,16 @@ opt-level = "z"
 # every interactive filter application; "z" there is the size lever of last resort (−331 KB),
 # taken because the gate is enforced in CI: if browser filters feel too slow, restore 3 here
 # and reclaim the bytes from a feature-gated decoder instead.
-[profile.wasm-release.package.photocraft-raster]
+[profile.wasm-release.package.photosweet-raster]
 opt-level = 3
-[profile.wasm-release.package.photocraft-color]
+[profile.wasm-release.package.photosweet-color]
 opt-level = 3
-[profile.wasm-release.package.photocraft-cms]
+[profile.wasm-release.package.photosweet-cms]
 opt-level = "z"
-[profile.wasm-release.package.photocraft-compose]
+[profile.wasm-release.package.photosweet-compose]
 opt-level = "z"
-[profile.wasm-release.package.photocraft-algo]
+[profile.wasm-release.package.photosweet-algo]
 opt-level = "z"
-[profile.wasm-release.package.photocraft-paint]
+[profile.wasm-release.package.photosweet-paint]
 opt-level = 3
 

@@ -1,10 +1,10 @@
 //! Opening a file whose adjustment layer can't be read warns, naming the layer and the reason,
 //! instead of opening it silently without its effect (#1763).
 
-use photocraft_color::{ColorMode, SampleType};
-use photocraft_doc::{Adjustment, Document, Layer, LayerContent};
-use photocraft_geom::Size;
-use photocraft_io::*;
+use photosweet_color::{ColorMode, SampleType};
+use photosweet_doc::{Adjustment, Document, Layer, LayerContent};
+use photosweet_geom::Size;
+use photosweet_io::*;
 
 fn reopen(adj: Adjustment, path: &str, opts: &ExportOptions) -> (Document, Vec<String>) {
     let mut d = Document::new("a", Size::new(16, 16), ColorMode::Rgb, SampleType::U8);

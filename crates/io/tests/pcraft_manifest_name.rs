@@ -1,14 +1,14 @@
-//! A `.pcraft` bundle's manifest reports the file it is in (#3312): writing a document to a new
-//! name must not leave the previous one inside, on every path that produces `.pcraft` bytes.
+//! A `.psweet` bundle's manifest reports the file it is in (#3312): writing a document to a new
+//! name must not leave the previous one inside, on every path that produces `.psweet` bytes.
 
 mod common;
 
 use common::*;
-use photocraft_color::{ColorMode, SampleType};
-use photocraft_format::zip::ZipReader;
-use photocraft_io::*;
+use photosweet_color::{ColorMode, SampleType};
+use photosweet_format::zip::ZipReader;
+use photosweet_io::*;
 
-fn doc() -> photocraft_doc::Document {
+fn doc() -> photosweet_doc::Document {
     let mut d = gen_doc(ColorMode::Rgb, SampleType::U8, Features::PIXELS);
     d.name = "FirstTest.psd".into();
     d
@@ -25,14 +25,14 @@ fn manifest_name(bytes: &[u8]) -> String {
 /// that wrote it instead of reporting the file it came from.
 #[test]
 fn export_names_the_manifest_after_the_file() {
-    let r = export(&doc(), "/tmp/somewhere/_nametest.pcraft", &ExportOptions::default()).expect("export");
-    assert_eq!(manifest_name(&r.bytes), "_nametest.pcraft");
-    assert_eq!(photocraft_format::load_from_bytes(&r.bytes).expect("load").name, "_nametest.pcraft");
+    let r = export(&doc(), "/tmp/somewhere/_nametest.psweet", &ExportOptions::default()).expect("export");
+    assert_eq!(manifest_name(&r.bytes), "_nametest.psweet");
+    assert_eq!(photosweet_format::load_from_bytes(&r.bytes).expect("load").name, "_nametest.psweet");
 }
 
 /// A bare extension names no file and leaves the document's own name alone.
 #[test]
 fn a_bare_extension_names_no_file() {
-    let r = export(&doc(), "pcraft", &ExportOptions::default()).expect("export");
+    let r = export(&doc(), "psweet", &ExportOptions::default()).expect("export");
     assert_eq!(manifest_name(&r.bytes), "FirstTest.psd");
 }

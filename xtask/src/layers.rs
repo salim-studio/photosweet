@@ -30,7 +30,7 @@ impl Class {
     }
 }
 
-/// The layering table. Names are package names without the `photocraft-`
+/// The layering table. Names are package names without the `photosweet-`
 /// prefix.
 pub const TABLE: &[(&str, Class)] = &[
     ("geom", Class::Layer(0)),
@@ -66,7 +66,7 @@ pub const TABLE: &[(&str, Class)] = &[
     ("platform", Class::Layer(6)),
     ("testkit", Class::Testkit),
     // L7 apps and tooling
-    ("photocraft", Class::Exempt),
+    ("photosweet", Class::Exempt),
     ("cli", Class::Exempt),
     ("web", Class::Exempt),
     ("web-boot", Class::Exempt),
@@ -105,7 +105,7 @@ pub const UI_CRATES: &[&str] = &["egui", "eframe", "winit", "egui_kittest", "cra
 pub const UI_MIN_LAYER: u8 = 6;
 
 pub fn short_name(pkg: &str) -> &str {
-    pkg.strip_prefix("photocraft-").unwrap_or(pkg)
+    pkg.strip_prefix("photosweet-").unwrap_or(pkg)
 }
 
 pub fn classify(pkg: &str) -> Option<Class> {
@@ -163,7 +163,7 @@ impl std::fmt::Display for Violation {
                 write!(f, "{krate}: standalone crate must not depend on workspace crate {dep}")
             }
             Violation::TestkitAsNormalDep { krate } => {
-                write!(f, "{krate}: photocraft-testkit may only be a dev-dependency")
+                write!(f, "{krate}: photosweet-testkit may only be a dev-dependency")
             }
             Violation::UiBelowL6 { krate, dep, layer } => {
                 write!(f, "{krate} (L{layer}) depends on UI crate `{dep}`; UI toolkits are only allowed in L6+")
@@ -274,50 +274,50 @@ mod tests {
     #[test]
     fn clean_downward_graph_passes() {
         let g = [
-            c("photocraft-geom", &[("kurbo", Normal, false)]),
-            c("photocraft-doc", &[("photocraft-geom", Normal, true)]),
-            c("photocraft-engine", &[("photocraft-doc", Normal, true), ("photocraft-testkit", Dev, true)]),
-            c("photocraft-ui-egui", &[("photocraft-engine", Normal, true), ("egui", Normal, false)]),
-            c("photocraft-cli", &[("photocraft-ui-egui", Normal, true)]),
+            c("photosweet-geom", &[("kurbo", Normal, false)]),
+            c("photosweet-doc", &[("photosweet-geom", Normal, true)]),
+            c("photosweet-engine", &[("photosweet-doc", Normal, true), ("photosweet-testkit", Dev, true)]),
+            c("photosweet-ui-egui", &[("photosweet-engine", Normal, true), ("egui", Normal, false)]),
+            c("photosweet-cli", &[("photosweet-ui-egui", Normal, true)]),
         ];
         assert!(check(&g).is_empty(), "{:?}", check(&g));
     }
 
     #[test]
     fn upward_dependency_flagged() {
-        let v = check(&[c("photocraft-doc", &[("photocraft-engine", Normal, true)])]);
+        let v = check(&[c("photosweet-doc", &[("photosweet-engine", Normal, true)])]);
         assert!(matches!(v[..], [Violation::Upward { from: 1, to: 5, .. }]));
     }
 
     #[test]
     fn sideways_dependency_flagged() {
-        let v = check(&[c("photocraft-ops", &[("photocraft-algo", Normal, true)])]);
+        let v = check(&[c("photosweet-ops", &[("photosweet-algo", Normal, true)])]);
         assert!(matches!(v[..], [Violation::Upward { from: 2, to: 2, .. }]));
     }
 
     #[test]
     fn l0_foundation_chain_allowed_one_way() {
-        assert!(check(&[c("photocraft-raster", &[("photocraft-color", Normal, true), ("photocraft-geom", Normal, true)])]).is_empty());
-        assert!(check(&[c("photocraft-color", &[("photocraft-geom", Normal, true)])]).is_empty());
-        let v = check(&[c("photocraft-geom", &[("photocraft-raster", Normal, true)])]);
+        assert!(check(&[c("photosweet-raster", &[("photosweet-color", Normal, true), ("photosweet-geom", Normal, true)])]).is_empty());
+        assert!(check(&[c("photosweet-color", &[("photosweet-geom", Normal, true)])]).is_empty());
+        let v = check(&[c("photosweet-geom", &[("photosweet-raster", Normal, true)])]);
         assert!(matches!(v[..], [Violation::Upward { from: 0, to: 0, .. }]));
     }
 
     #[test]
     fn self_dev_dependency_ignored() {
-        assert!(check(&[c("photocraft-psd", &[("photocraft-psd", Dev, true)])]).is_empty());
+        assert!(check(&[c("photosweet-psd", &[("photosweet-psd", Dev, true)])]).is_empty());
     }
 
     #[test]
     fn upward_dev_dependency_flagged() {
-        let v = check(&[c("photocraft-geom", &[("photocraft-doc", Dev, true)])]);
+        let v = check(&[c("photosweet-geom", &[("photosweet-doc", Dev, true)])]);
         assert!(matches!(v[..], [Violation::Upward { kind: Dev, .. }]));
     }
 
     #[test]
     fn standalone_crates_have_no_workspace_deps() {
-        for s in ["photocraft-psd", "photocraft-codecs", "photocraft-adobe-assets"] {
-            let v = check(&[c(s, &[("photocraft-geom", Normal, true)])]);
+        for s in ["photosweet-psd", "photosweet-codecs", "photosweet-adobe-assets"] {
+            let v = check(&[c(s, &[("photosweet-geom", Normal, true)])]);
             assert!(matches!(v[..], [Violation::StandaloneHasWorkspaceDep { .. }]), "{s}");
             assert!(check(&[c(s, &[("image", Normal, false)])]).is_empty());
         }
@@ -325,57 +325,57 @@ mod tests {
 
     #[test]
     fn standalone_exception_is_exactly_codecs_to_heif() {
-        assert!(check(&[c("photocraft-codecs", &[("photocraft-heif", Normal, true)])]).is_empty());
-        assert!(check(&[c("photocraft-codecs", &[("photocraft-heif", Dev, true)])]).is_empty());
+        assert!(check(&[c("photosweet-codecs", &[("photosweet-heif", Normal, true)])]).is_empty());
+        assert!(check(&[c("photosweet-codecs", &[("photosweet-heif", Dev, true)])]).is_empty());
         // Not the other way round, not for other standalone crates, and heif stays dependency-free.
-        for (from, to) in [("photocraft-heif", "photocraft-codecs"), ("photocraft-psd", "photocraft-heif"), ("photocraft-heif", "photocraft-geom")] {
+        for (from, to) in [("photosweet-heif", "photosweet-codecs"), ("photosweet-psd", "photosweet-heif"), ("photosweet-heif", "photosweet-geom")] {
             let v = check(&[c(from, &[(to, Normal, true)])]);
             assert!(matches!(v[..], [Violation::StandaloneHasWorkspaceDep { .. }]), "{from} -> {to}");
         }
         // The exception does not open codecs up to layered crates.
-        let v = check(&[c("photocraft-codecs", &[("photocraft-geom", Normal, true)])]);
+        let v = check(&[c("photosweet-codecs", &[("photosweet-geom", Normal, true)])]);
         assert!(matches!(v[..], [Violation::StandaloneHasWorkspaceDep { .. }]));
     }
 
     #[test]
     fn standalone_is_usable_from_higher_layers() {
-        assert!(check(&[c("photocraft-io", &[("photocraft-psd", Normal, true)])]).is_empty());
-        let v = check(&[c("photocraft-geom", &[("photocraft-codecs", Normal, true)])]);
+        assert!(check(&[c("photosweet-io", &[("photosweet-psd", Normal, true)])]).is_empty());
+        let v = check(&[c("photosweet-geom", &[("photosweet-codecs", Normal, true)])]);
         assert!(matches!(v[..], [Violation::Upward { from: 0, to: 0, .. }]));
     }
 
     #[test]
     fn ui_crates_below_l6_flagged() {
         for dep in ["egui", "eframe", "winit", "egui_kittest", "craft-ui", "rfd", "bevy_ecs", "bevy"] {
-            let v = check(&[c("photocraft-engine", &[(dep, Normal, false)])]);
+            let v = check(&[c("photosweet-engine", &[(dep, Normal, false)])]);
             assert!(matches!(v[..], [Violation::UiBelowL6 { layer: 5, .. }]), "{dep}");
         }
-        assert!(check(&[c("photocraft-engine", &[("egui_extras_not", Normal, false)])]).is_empty());
-        assert!(check(&[c("photocraft-ui-egui", &[("craft-ui", Normal, false)])]).is_empty());
-        assert!(check(&[c("photocraft-platform", &[("winit", Normal, false)])]).is_empty());
+        assert!(check(&[c("photosweet-engine", &[("egui_extras_not", Normal, false)])]).is_empty());
+        assert!(check(&[c("photosweet-ui-egui", &[("craft-ui", Normal, false)])]).is_empty());
+        assert!(check(&[c("photosweet-platform", &[("winit", Normal, false)])]).is_empty());
     }
 
     #[test]
     fn unregistered_crate_is_error() {
-        let v = check(&[c("photocraft-mystery", &[])]);
-        assert!(matches!(&v[..], [Violation::Unregistered { krate }] if krate == "photocraft-mystery"));
+        let v = check(&[c("photosweet-mystery", &[])]);
+        assert!(matches!(&v[..], [Violation::Unregistered { krate }] if krate == "photosweet-mystery"));
         assert!(v[0].to_string().contains("register"));
     }
 
     #[test]
     fn testkit_only_as_dev_dependency() {
-        let v = check(&[c("photocraft-raster", &[("photocraft-testkit", Normal, true)])]);
+        let v = check(&[c("photosweet-raster", &[("photosweet-testkit", Normal, true)])]);
         assert!(matches!(v[..], [Violation::TestkitAsNormalDep { .. }]));
-        assert!(check(&[c("photocraft-raster", &[("photocraft-testkit", Dev, true)])]).is_empty());
+        assert!(check(&[c("photosweet-raster", &[("photosweet-testkit", Dev, true)])]).is_empty());
         // testkit itself may use anything up to L5 but not L6 crates.
-        assert!(check(&[c("photocraft-testkit", &[("photocraft-engine", Normal, true)])]).is_empty());
-        assert!(!check(&[c("photocraft-testkit", &[("photocraft-ui-egui", Normal, true)])]).is_empty());
+        assert!(check(&[c("photosweet-testkit", &[("photosweet-engine", Normal, true)])]).is_empty());
+        assert!(!check(&[c("photosweet-testkit", &[("photosweet-ui-egui", Normal, true)])]).is_empty());
     }
 
     #[test]
     fn apps_and_xtask_exempt() {
-        for app in ["photocraft", "photocraft-cli", "photocraft-web", "photocraft-web-boot", "xtask"] {
-            assert!(check(&[c(app, &[("egui", Normal, false), ("photocraft-ui-egui", Normal, true)])]).is_empty());
+        for app in ["photosweet", "photosweet-cli", "photosweet-web", "photosweet-web-boot", "xtask"] {
+            assert!(check(&[c(app, &[("egui", Normal, false), ("photosweet-ui-egui", Normal, true)])]).is_empty());
         }
     }
 
@@ -383,17 +383,17 @@ mod tests {
     fn metadata_parsing() {
         let meta: Value = serde_json::from_str(
             r#"{"packages":[
-                {"name":"photocraft-doc","dependencies":[
-                    {"name":"photocraft-geom","kind":null,"path":"/x/crates/geom"},
+                {"name":"photosweet-doc","dependencies":[
+                    {"name":"photosweet-geom","kind":null,"path":"/x/crates/geom"},
                     {"name":"serde","kind":null},
                     {"name":"proptest","kind":"dev"}]},
-                {"name":"photocraft-geom","dependencies":[]}
+                {"name":"photosweet-geom","dependencies":[]}
             ]}"#,
         )
         .unwrap();
         let g = from_metadata(&meta).unwrap();
         assert_eq!(g.len(), 2);
-        let doc = g.iter().find(|c| c.name == "photocraft-doc").unwrap();
+        let doc = g.iter().find(|c| c.name == "photosweet-doc").unwrap();
         assert!(doc.deps[0].workspace && !doc.deps[1].workspace);
         assert_eq!(doc.deps[2].kind, Dev);
         assert!(check(&g).is_empty());

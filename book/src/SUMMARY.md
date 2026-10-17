@@ -1,6 +1,6 @@
 # Summary
 
-[PhotoCraft Documentation](README.md)
+[PhotoSweet Documentation](README.md)
 
 # Getting started
 
@@ -23,7 +23,7 @@
 - [Raster formats](formats/raster-formats.md)
 - [SVG](formats/svg.md)
 - [Affinity documents](formats/affinity.md)
-- [The `.pcraft` format](formats/pcraft.md)
+- [The `.psweet` format](formats/psweet.md)
 
 # Automation
 

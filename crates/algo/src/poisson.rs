@@ -242,8 +242,8 @@ pub fn membrane_fill_with(
     ch: usize,
     img: &[f32],
     hole: &[bool],
-    ctl: &photocraft_raster::Interrupt,
-) -> Result<Vec<f32>, photocraft_raster::Cancelled> {
+    ctl: &photosweet_raster::Interrupt,
+) -> Result<Vec<f32>, photosweet_raster::Cancelled> {
     ctl.check()?;
     let stop = || ctl.cancelled();
     let out = per_channel(w, h, ch, |c| {

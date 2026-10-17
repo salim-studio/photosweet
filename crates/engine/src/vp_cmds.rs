@@ -1,12 +1,12 @@
 //! Filter › Vanishing Point: perspective planes (drawn, or torn off an edge of another plane),
 //! pasting an image onto a plane and the perspective clone stamp, as one replayable command
-//! ([`photocraft_algo::vanishing`]). The edit lands on the active pixel layer, or on a new layer
+//! ([`photosweet_algo::vanishing`]). The edit lands on the active pixel layer, or on a new layer
 //! with `"newLayer": true` (Photoshop's advice for non-destructive Vanishing Point work).
 
-use photocraft_algo::vanishing::{Edge, PlaneCheck, Scene, VpPlane, clone_stroke, paste};
-use photocraft_doc::{Document, Layer, LayerContent, LayerId};
-use photocraft_geom::Rect;
-use photocraft_raster::Surface;
+use photosweet_algo::vanishing::{Edge, PlaneCheck, Scene, VpPlane, clone_stroke, paste};
+use photosweet_doc::{Document, Layer, LayerContent, LayerId};
+use photosweet_geom::Rect;
+use photosweet_raster::Surface;
 use serde_json::{Value, json};
 
 use crate::commands::CommandSpec;

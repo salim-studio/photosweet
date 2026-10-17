@@ -1,12 +1,12 @@
 //! Dense 24-MP stack, synchronized GPU rendering with/without lower-stack reuse.
-//! `cargo run --release -p photocraft-gpu --example bench_stack_reuse [-- --quick]`
+//! `cargo run --release -p photosweet-gpu --example bench_stack_reuse [-- --quick]`
 use std::time::Instant;
 
-use photocraft_color::{ColorMode, SampleType};
-use photocraft_doc::{Document, Layer, LayerContent};
-use photocraft_geom::Size;
-use photocraft_gpu::{Compositor, Stats};
-use photocraft_raster::Surface;
+use photosweet_color::{ColorMode, SampleType};
+use photosweet_doc::{Document, Layer, LayerContent};
+use photosweet_geom::Size;
+use photosweet_gpu::{Compositor, Stats};
+use photosweet_raster::Surface;
 
 fn render(comp: &mut Compositor, device: &wgpu::Device, queue: &wgpu::Queue, doc: &Document) -> Result<Stats, Box<dyn std::error::Error>> {
     let stats = comp.render(device, queue, doc, doc.bounds(), |_, _| {})?;

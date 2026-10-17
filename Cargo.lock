@@ -4612,7 +4612,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "photocraft"
+name = "photosweet"
 version = "0.9.0"
 dependencies = [
  "arboard",
@@ -4629,19 +4629,19 @@ dependencies = [
  "objc2-app-kit 0.3.2",
  "objc2-foundation 0.3.2",
  "open",
- "photocraft-automation",
- "photocraft-cms",
- "photocraft-codecs",
- "photocraft-color",
- "photocraft-compose",
- "photocraft-doc",
- "photocraft-engine",
- "photocraft-format",
- "photocraft-geom",
- "photocraft-io",
- "photocraft-raster",
- "photocraft-tablet",
- "photocraft-ui-egui",
+ "photosweet-automation",
+ "photosweet-cms",
+ "photosweet-codecs",
+ "photosweet-color",
+ "photosweet-compose",
+ "photosweet-doc",
+ "photosweet-engine",
+ "photosweet-format",
+ "photosweet-geom",
+ "photosweet-io",
+ "photosweet-raster",
+ "photosweet-tablet",
+ "photosweet-ui-egui",
  "resvg",
  "rfd",
  "ron",
@@ -4656,7 +4656,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "photocraft-affinity"
+name = "photosweet-affinity"
 version = "0.9.0"
 dependencies = [
  "crc32fast",
@@ -4666,12 +4666,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "photocraft-algo"
+name = "photosweet-algo"
 version = "0.9.0"
 dependencies = [
- "photocraft-color",
- "photocraft-geom",
- "photocraft-raster",
+ "photosweet-color",
+ "photosweet-geom",
+ "photosweet-raster",
  "rayon",
  "rustfft",
  "serde",
@@ -4679,19 +4679,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "photocraft-automation"
+name = "photosweet-automation"
 version = "0.9.0"
 dependencies = [
  "base64 0.22.1",
  "cap-std",
  "getrandom 0.3.4",
- "photocraft-codecs",
- "photocraft-compose",
- "photocraft-doc",
- "photocraft-engine",
- "photocraft-format",
- "photocraft-geom",
- "photocraft-io",
+ "photosweet-codecs",
+ "photosweet-compose",
+ "photosweet-doc",
+ "photosweet-engine",
+ "photosweet-format",
+ "photosweet-geom",
+ "photosweet-io",
  "rmcp",
  "schemars",
  "serde",
@@ -4701,21 +4701,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "photocraft-cli"
+name = "photosweet-cli"
 version = "0.9.0"
 dependencies = [
- "photocraft-automation",
- "photocraft-codecs",
- "photocraft-engine",
- "photocraft-format",
- "photocraft-io",
+ "photosweet-automation",
+ "photosweet-codecs",
+ "photosweet-engine",
+ "photosweet-format",
+ "photosweet-io",
  "serde_json",
  "tokio",
  "winresource",
 ]
 
 [[package]]
-name = "photocraft-cms"
+name = "photosweet-cms"
 version = "0.9.0"
 dependencies = [
  "moxcms",
@@ -4723,7 +4723,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "photocraft-codecs"
+name = "photosweet-codecs"
 version = "0.9.0"
 dependencies = [
  "exr",
@@ -4732,7 +4732,7 @@ dependencies = [
  "image",
  "image-webp",
  "jpeg-encoder",
- "photocraft-heif",
+ "photosweet-heif",
  "png 0.18.1",
  "proptest",
  "rayon",
@@ -4744,65 +4744,65 @@ dependencies = [
 ]
 
 [[package]]
-name = "photocraft-color"
+name = "photosweet-color"
 version = "0.9.0"
 dependencies = [
- "photocraft-cms",
+ "photosweet-cms",
  "serde",
 ]
 
 [[package]]
-name = "photocraft-compose"
+name = "photosweet-compose"
 version = "0.9.0"
 dependencies = [
  "criterion",
- "photocraft-color",
- "photocraft-doc",
- "photocraft-geom",
- "photocraft-paint",
- "photocraft-raster",
- "photocraft-vector",
+ "photosweet-color",
+ "photosweet-doc",
+ "photosweet-geom",
+ "photosweet-paint",
+ "photosweet-raster",
+ "photosweet-vector",
  "proptest",
  "rayon",
 ]
 
 [[package]]
-name = "photocraft-doc"
+name = "photosweet-doc"
 version = "0.9.0"
 dependencies = [
- "photocraft-color",
- "photocraft-geom",
- "photocraft-raster",
+ "photosweet-color",
+ "photosweet-geom",
+ "photosweet-raster",
  "serde",
  "serde_json",
 ]
 
 [[package]]
-name = "photocraft-engine"
+name = "photosweet-engine"
 version = "0.9.0"
 dependencies = [
  "blake3",
  "craft-print",
  "exr",
  "flate2",
- "photocraft-affinity",
- "photocraft-algo",
- "photocraft-cms",
- "photocraft-codecs",
- "photocraft-color",
- "photocraft-compose",
- "photocraft-doc",
- "photocraft-format",
- "photocraft-geom",
- "photocraft-io",
- "photocraft-ops",
- "photocraft-paint",
- "photocraft-plugins",
- "photocraft-psd",
- "photocraft-raster",
- "photocraft-raw",
- "photocraft-text",
- "photocraft-vector",
+ "photosweet-affinity",
+ "photosweet-algo",
+ "photosweet-cms",
+ "photosweet-codecs",
+ "photosweet-color",
+ "photosweet-compose",
+ "photosweet-doc",
+ "photosweet-format",
+ "photosweet-geom",
+ "photosweet-io",
+ "photosweet-ops",
+ "photosweet-paint",
+ "photosweet-plugins",
+ "photosweet-psd",
+ "photosweet-raster",
+ "photosweet-raw",
+ "photosweet-text",
+ "photosweet-vector",
  "rayon",
  "roxmltree",
  "serde",
@@ -4813,18 +4813,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "photocraft-format"
+name = "photosweet-format"
 version = "0.9.0"
 dependencies = [
  "blake3",
  "crc32fast",
  "flate2",
  "libc",
- "photocraft-codecs",
- "photocraft-color",
- "photocraft-doc",
- "photocraft-geom",
- "photocraft-raster",
+ "photosweet-codecs",
+ "photosweet-color",
+ "photosweet-doc",
+ "photosweet-geom",
+ "photosweet-raster",
  "proptest",
  "rustix 1.1.5",
  "ruzstd",
@@ -4834,58 +4834,58 @@ dependencies = [
 ]
 
 [[package]]
-name = "photocraft-geom"
+name = "photosweet-geom"
 version = "0.9.0"
 dependencies = [
  "serde",
 ]
 
 [[package]]
-name = "photocraft-gpu"
+name = "photosweet-gpu"
 version = "0.9.0"
 dependencies = [
  "half",
  "log",
- "photocraft-color",
- "photocraft-compose",
- "photocraft-doc",
- "photocraft-geom",
- "photocraft-raster",
- "photocraft-vector",
+ "photosweet-color",
+ "photosweet-compose",
+ "photosweet-doc",
+ "photosweet-geom",
+ "photosweet-raster",
+ "photosweet-vector",
  "pollster 1.0.1",
  "rayon",
  "wgpu",
 ]
 
 [[package]]
-name = "photocraft-heif"
+name = "photosweet-heif"
 version = "0.9.0"
 dependencies = [
  "heic-rs",
 ]
 
 [[package]]
-name = "photocraft-io"
+name = "photosweet-io"
 version = "0.9.0"
 dependencies = [
  "blake3",
  "crc32fast",
  "flate2",
- "photocraft-affinity",
- "photocraft-algo",
- "photocraft-cms",
- "photocraft-codecs",
- "photocraft-color",
- "photocraft-compose",
- "photocraft-doc",
- "photocraft-format",
- "photocraft-geom",
- "photocraft-paint",
- "photocraft-psd",
- "photocraft-raster",
- "photocraft-raw",
- "photocraft-text",
- "photocraft-vector",
+ "photosweet-affinity",
+ "photosweet-algo",
+ "photosweet-cms",
+ "photosweet-codecs",
+ "photosweet-color",
+ "photosweet-compose",
+ "photosweet-doc",
+ "photosweet-format",
+ "photosweet-geom",
+ "photosweet-paint",
+ "photosweet-psd",
+ "photosweet-raster",
+ "photosweet-raw",
+ "photosweet-text",
+ "photosweet-vector",
  "proptest",
  "resvg",
  "roxmltree",
@@ -4894,30 +4894,30 @@ dependencies = [
 ]
 
 [[package]]
-name = "photocraft-ops"
+name = "photosweet-ops"
 version = "0.9.0"
 dependencies = [
- "photocraft-doc",
+ "photosweet-doc",
 ]
 
 [[package]]
-name = "photocraft-paint"
+name = "photosweet-paint"
 version = "0.9.0"
 dependencies = [
- "photocraft-color",
- "photocraft-geom",
- "photocraft-raster",
+ "photosweet-color",
+ "photosweet-geom",
+ "photosweet-raster",
  "serde",
  "serde_json",
 ]
 
 [[package]]
-name = "photocraft-plugins"
+name = "photosweet-plugins"
 version = "0.9.0"
 dependencies = [
- "photocraft-color",
- "photocraft-geom",
- "photocraft-raster",
+ "photosweet-color",
+ "photosweet-geom",
+ "photosweet-raster",
  "rayon",
  "serde",
  "serde_json",
@@ -4927,34 +4927,34 @@ dependencies = [
 ]
 
 [[package]]
-name = "photocraft-psd"
+name = "photosweet-psd"
 version = "0.9.0"
 dependencies = [
  "flate2",
- "photocraft-psd",
+ "photosweet-psd",
  "proptest",
  "serde",
  "thiserror 2.0.21",
 ]
 
 [[package]]
-name = "photocraft-raster"
+name = "photosweet-raster"
 version = "0.9.0"
 dependencies = [
- "photocraft-color",
- "photocraft-geom",
+ "photosweet-color",
+ "photosweet-geom",
  "proptest",
  "serde",
 ]
 
 [[package]]
-name = "photocraft-raw"
+name = "photosweet-raw"
 version = "0.9.0"
 dependencies = [
  "flate2",
  "image",
  "jxl-oxide",
- "photocraft-raw",
+ "photosweet-raw",
  "png 0.18.1",
  "rayon",
  "zune-core 0.5.3",
@@ -4963,7 +4963,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "photocraft-tablet"
+name = "photosweet-tablet"
 version = "0.9.0"
 dependencies = [
  "block2 0.6.2",
@@ -4975,32 +4975,32 @@ dependencies = [
 ]
 
 [[package]]
-name = "photocraft-testkit"
+name = "photosweet-testkit"
 version = "0.9.0"
 dependencies = [
  "memory-stats",
- "photocraft-color",
- "photocraft-geom",
- "photocraft-raster",
+ "photosweet-color",
+ "photosweet-geom",
+ "photosweet-raster",
  "serde_json",
 ]
 
 [[package]]
-name = "photocraft-text"
+name = "photosweet-text"
 version = "0.9.0"
 dependencies = [
  "flate2",
  "parley",
- "photocraft-color",
- "photocraft-doc",
- "photocraft-geom",
- "photocraft-psd",
- "photocraft-raster",
+ "photosweet-color",
+ "photosweet-doc",
+ "photosweet-geom",
+ "photosweet-psd",
+ "photosweet-raster",
  "skrifa",
 ]
 
 [[package]]
-name = "photocraft-ui-egui"
+name = "photosweet-ui-egui"
 version = "0.9.0"
 dependencies = [
  "base64 0.22.1",
@@ -5013,25 +5013,25 @@ dependencies = [
  "epaint_default_fonts",
  "flate2",
  "log",
- "photocraft-algo",
- "photocraft-cms",
- "photocraft-codecs",
- "photocraft-color",
- "photocraft-compose",
- "photocraft-doc",
- "photocraft-engine",
- "photocraft-format",
- "photocraft-geom",
- "photocraft-gpu",
- "photocraft-io",
- "photocraft-paint",
- "photocraft-plugins",
- "photocraft-psd",
- "photocraft-raster",
- "photocraft-raw",
- "photocraft-testkit",
- "photocraft-text",
- "photocraft-vector",
+ "photosweet-algo",
+ "photosweet-cms",
+ "photosweet-codecs",
+ "photosweet-color",
+ "photosweet-compose",
+ "photosweet-doc",
+ "photosweet-engine",
+ "photosweet-format",
+ "photosweet-geom",
+ "photosweet-gpu",
+ "photosweet-io",
+ "photosweet-paint",
+ "photosweet-plugins",
+ "photosweet-psd",
+ "photosweet-raster",
+ "photosweet-raw",
+ "photosweet-testkit",
+ "photosweet-text",
+ "photosweet-vector",
  "rayon",
  "serde",
  "serde_json",
@@ -5041,31 +5041,31 @@ dependencies = [
 ]
 
 [[package]]
-name = "photocraft-vector"
+name = "photosweet-vector"
 version = "0.9.0"
 dependencies = [
- "photocraft-color",
- "photocraft-doc",
- "photocraft-geom",
- "photocraft-raster",
+ "photosweet-color",
+ "photosweet-doc",
+ "photosweet-geom",
+ "photosweet-raster",
  "rayon",
 ]
 
 [[package]]
-name = "photocraft-web"
+name = "photosweet-web"
 version = "0.9.0"
 dependencies = [
  "eframe",
  "egui",
  "js-sys",
  "log",
- "photocraft-codecs",
- "photocraft-doc",
- "photocraft-engine",
- "photocraft-io",
- "photocraft-paint",
- "photocraft-psd",
- "photocraft-ui-egui",
+ "photosweet-codecs",
+ "photosweet-doc",
+ "photosweet-engine",
+ "photosweet-io",
+ "photosweet-paint",
+ "photosweet-psd",
+ "photosweet-ui-egui",
  "rfd",
  "serde_json",
  "wasm-bindgen",
@@ -5074,7 +5074,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "photocraft-web-boot"
+name = "photosweet-web-boot"
 version = "0.9.0"
 dependencies = [
  "flate2",

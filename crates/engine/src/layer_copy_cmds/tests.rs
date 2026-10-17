@@ -1,7 +1,7 @@
-use photocraft_color::{ColorMode, PixelFormat, SampleType};
-use photocraft_doc::{Document, LayerContent, LayerId, Pattern};
-use photocraft_geom::Rect;
-use photocraft_raster::Surface;
+use photosweet_color::{ColorMode, PixelFormat, SampleType};
+use photosweet_doc::{Document, LayerContent, LayerId, Pattern};
+use photosweet_geom::Rect;
+use photosweet_raster::Surface;
 use serde_json::{Value, json};
 
 use crate::Session;

@@ -1,6 +1,6 @@
 # Architecture overview
 
-PhotoCraft separates the document engine from presentation and transport. The desktop UI, CLI, JSON control channel, and MCP server reach editing behavior through the command registry rather than maintaining separate implementations.
+PhotoSweet separates the document engine from presentation and transport. The desktop UI, CLI, JSON control channel, and MCP server reach editing behavior through the command registry rather than maintaining separate implementations.
 
 ```text
 desktop UI       CLI       JSON control       MCP
@@ -13,21 +13,21 @@ desktop UI       CLI       JSON control       MCP
                           |
        document model + operations + compositors
                           |
-             PSD / raster / .pcraft I/O
+             PSD / raster / .psweet I/O
 ```
 
 The enforced dependency direction runs from format-independent foundation crates through the document and operation layers to composition, I/O, the engine, and finally UI/automation. `cargo xtask layers` checks this rule.
 
-The complete design narrative and dependency diagram remain in [`docs/architecture.md`](https://github.com/storytold/photocraft/blob/main/docs/architecture.md). That document contains historical design material as well as implemented architecture; confirm behavior in current source when security or compatibility depends on it.
+The complete design narrative and dependency diagram remain in [`docs/architecture.md`](https://github.com/salim-studio/photosweet/blob/main/docs/architecture.md). That document contains historical design material as well as implemented architecture; confirm behavior in current source when security or compatibility depends on it.
 
 ## Core properties
 
-- `photocraft-doc` holds the pure-data document model.
-- `photocraft-engine::Session` owns open documents, active state, history, and command dispatch.
-- `photocraft-compose` is the CPU reference compositor; `photocraft-gpu` accelerates supported interactive paths.
-- `photocraft-io` maps between documents and PSD or flat formats.
-- `photocraft-format` reads and writes the native `.pcraft` bundle.
-- `photocraft-ui-egui` is a thin shell over engine commands.
-- `photocraft-automation` exposes the headless engine and the live-GUI bridge.
+- `photosweet-doc` holds the pure-data document model.
+- `photosweet-engine::Session` owns open documents, active state, history, and command dispatch.
+- `photosweet-compose` is the CPU reference compositor; `photosweet-gpu` accelerates supported interactive paths.
+- `photosweet-io` maps between documents and PSD or flat formats.
+- `photosweet-format` reads and writes the native `.psweet` bundle.
+- `photosweet-ui-egui` is a thin shell over engine commands.
+- `photosweet-automation` exposes the headless engine and the live-GUI bridge.
 
 See [Crates and dependency layers](crates.md) for the complete workspace map.

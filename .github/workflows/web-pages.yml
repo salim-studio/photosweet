@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - "apps/photocraft-web/**"
-      - "apps/photocraft-web-boot/**"
+      - "apps/photosweet-web/**"
+      - "apps/photosweet-web-boot/**"
       - "crates/**"
       - "Cargo.toml"
       - "Cargo.lock"
@@ -40,7 +40,7 @@ jobs:
       - name: Unpack site for Pages
         run: |
           set -euo pipefail
-          f=(dist/release/photocraft-web-*.zip)
+          f=(dist/release/photosweet-web-*.zip)
           python3 - "$f" <<'EOF'
           import sys, zipfile, pathlib
           zippath = pathlib.Path(sys.argv[1])

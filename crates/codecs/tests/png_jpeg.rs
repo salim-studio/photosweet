@@ -3,7 +3,7 @@
 
 mod common;
 use common::*;
-use photocraft_codecs::*;
+use photosweet_codecs::*;
 
 // ---------------------------------------------------------------------------
 // PNG Adam7
