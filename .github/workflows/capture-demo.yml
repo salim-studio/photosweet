@@ -36,14 +36,15 @@ jobs:
           mkdir -p art
           get() { curl -fsSL --retry 3 -A "$ua" -o "art/$1" "https://commons.wikimedia.org/wiki/Special:FilePath/$2?width=2400"; }
           get wave.jpg        "Tsunami_by_hokusai_19th_century.jpg"
+          get sunrise.jpg     "Monet_-_Impression,_Sunrise.jpg"
           get girl.jpg        "1665_Girl_with_a_Pearl_Earring.jpg"
           get sierra.jpg      "Albert_Bierstadt_-_Among_the_Sierra_Nevada,_California_-_Google_Art_Project.jpg"
           get earthrise.jpg   "NASA-Apollo8-Dec24-Earthrise.jpg"
           get waterlilies.jpg "Claude_Monet_-_Water_Lilies_-_1906,_Ryerson.jpg"
           get starrynight.jpg "Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg"
-          get kiss.jpg        "Gustav_Klimt_016.jpg"
           get tetons.jpg      "Adams_The_Tetons_and_the_Snake_River.jpg"
-          ls -l art
+          get kiss.jpg        "Gustav_Klimt_016.jpg"
+          identify -format "%f %wx%h\n" art/*.jpg
 
       - name: Build the snapshot example
         run: cargo build -p photosweet-ui-egui --example snapshot
@@ -53,85 +54,129 @@ jobs:
           WGPU_BACKEND: vulkan
           SNAPSHOT_TIMING: "1"
         run: |
-          set -u
+          set -eu
+          cat > capture.py <<'PY'
+          import json, subprocess
+
+          OUT = "out"
+          WIDTH = 1600  # every document is scaled to this width so compositions are predictable
+          DARK = {"interface.appearanceMode": "dark", "interface.darkTheme": "pro"}
+          LIGHT = {"interface.appearanceMode": "light", "interface.lightTheme": "studioLight"}
+
+          def E(cmd, params=None):
+              return ["engine.execute", {"command": cmd, **({"params": params} if params is not None else {})}]
+
+          def prefs(values):
+              return E("prefs.set", {"values": values})
+
+          def fit(W, H):  # scale the opened artwork to a fixed width
+              return E("image.imageSize", {"width": W, "height": H, "resample": "bicubic"})
+
+          def panel(name):
+              return ["window.panel.activate", {"panel": name}]
+
+          def select(name):
+              return E("layer.select", {"name": name})
+
+          def rename(name, **props):
+              return E("layer.setProps", {"name": name, **props})
+
+          def badge(W, H):  # the brand gradient, drawn as shape layers
+              return [
+                  E("shape.create", {"kind": "roundedRect", "rect": [round(0.28 * W), round(0.24 * H), round(0.44 * W), round(0.44 * H)], "fill": "#ffffff", "name": "Badge"}),
+                  E("layer.layerStyle.dropShadow", {"distance": 22, "size": 44, "opacity": 0.35}),
+                  E("shape.create", {"kind": "ellipse", "rect": [round(0.31 * W), round(0.27 * H), round(0.38 * W), round(0.38 * H)], "fill": "#8b5cf6", "name": "Lotus"}),
+                  E("shape.create", {"kind": "ellipse", "rect": [round(0.39 * W), round(0.35 * H), round(0.22 * W), round(0.22 * H)], "fill": "#f43f5e", "name": "Sun"}),
+                  E("shape.create", {"kind": "ellipse", "rect": [round(0.475 * W), round(0.435 * H), round(0.09 * W), round(0.09 * H)], "fill": "#fbbf24", "name": "Spark"}),
+              ]
+
+          def shots():  # (name, system-theme, artwork, builder(W, H) -> script)
+              return [
+                  ("01-hero", "dark", "wave.jpg", lambda W, H: [
+                      prefs(DARK), fit(W, H),
+                      E("layer.newAdjustmentLayer.curves", {"points": [[0, 0], [64, 52], [176, 204], [255, 255]]}),
+                      rename("Tonal curve"),
+                      E("layer.newAdjustmentLayer.vibrance", {"vibrance": 28, "saturation": 6}),
+                      rename("Vibrance", blend="Soft Light", opacity=0.65),
+                      E("shape.create", {"kind": "rect", "rect": [round(0.045 * W), round(0.60 * H), round(0.47 * W), round(0.30 * H)], "fill": "#ffffff", "name": "Caption card"}),
+                      E("layer.layerStyle.dropShadow", {"distance": 34, "size": 70, "opacity": 0.38}),
+                      E("type.create", {"x": round(0.075 * W), "y": round(0.640 * H), "text": "The Great Wave", "size": 92, "name": "Title"}),
+                      E("type.create", {"x": round(0.079 * W), "y": round(0.80 * H), "text": "Katsushika Hokusai  ·  1831", "size": 36, "name": "Credit"}),
+                      select("Tonal curve"), panel("layers"), ["ui.set", {"tool": "move"}],
+                  ]),
+                  ("02-adjust", "light", "sunrise.jpg", lambda W, H: [
+                      prefs(LIGHT), fit(W, H),
+                      E("layer.newAdjustmentLayer.levels", {}), rename("Levels"),
+                      E("layer.newAdjustmentLayer.vibrance", {"vibrance": 34, "saturation": 4}), rename("Vibrance"),
+                      panel("layers"), ["ui.set", {"tool": "move"}],
+                      ["ui.menu.invoke", {"id": "image.adjustments.curves"}],
+                  ]),
+                  ("03-mask", "light", "girl.jpg", lambda W, H: [
+                      prefs(LIGHT), fit(W, H),
+                      E("select.rect", {"x": round(0.27 * W), "y": round(0.18 * H), "width": round(0.46 * W), "height": round(0.48 * H), "ellipse": True}),
+                      E("layer.newAdjustmentLayer.hueSaturation", {"hue": 0, "saturation": -100}), rename("Colour back"),
+                      panel("layers"), ["ui.set", {"tool": "move"}],
+                  ]),
+                  ("04-type", "light", "sierra.jpg", lambda W, H: [
+                      prefs(LIGHT), fit(W, H),
+                      E("layer.newAdjustmentLayer.curves", {"points": [[0, 0], [128, 132], [255, 255]]}), rename("Depth"),
+                      E("type.create", {"x": round(0.06 * W), "y": round(0.13 * H), "text": "SIERRA NEVADA", "size": 104, "name": "Headline"}),
+                      E("type.create", {"x": round(0.065 * W), "y": round(0.42 * H), "text": "Albert Bierstadt  ·  1868", "size": 46, "name": "Byline"}),
+                      E("type.create", {"x": round(0.065 * W), "y": round(0.60 * H), "text": "Painted in a single summer, from sketches made on the trail.", "size": 40, "name": "Caption"}),
+                      select("Headline"), panel("layers"), ["ui.set", {"tool": "type"}],
+                  ]),
+                  ("05-style", "dark", "earthrise.jpg", lambda W, H: [
+                      prefs(DARK), fit(W, H),
+                      E("type.create", {"x": round(0.13 * W), "y": round(0.50 * H), "text": "EARTHRISE", "size": 130, "name": "EARTHRISE"}),
+                      E("layer.layerStyle.outerGlow", {"size": 40, "color": "#fbbf24", "opacity": 0.85}),
+                      E("layer.layerStyle.stroke", {"size": 4, "color": "#ffffff", "add": True}),
+                      panel("layers"), ["ui.set", {"tool": "move"}],
+                      ["ui.dialog.open", {"kind": "layerStyle", "effect": "outerGlow"}],
+                  ]),
+                  ("06-vector", "light", "waterlilies.jpg", lambda W, H: [
+                      prefs(LIGHT), fit(W, H),
+                      *badge(W, H),
+                      select("Badge"), panel("layers"), ["ui.set", {"tool": "pen"}],
+                  ]),
+                  ("07-filter", "dark", "starrynight.jpg", lambda W, H: [
+                      prefs(DARK), fit(W, H),
+                      E("select.rect", {"x": round(0.24 * W), "y": round(0.16 * H), "width": round(0.50 * W), "height": round(0.58 * H), "ellipse": True}),
+                      panel("layers"), ["ui.set", {"tool": "move"}],
+                      ["ui.menu.invoke", {"id": "filter.distort.twirl"}],
+                  ]),
+                  ("08-transform", "light", "tetons.jpg", lambda W, H: [
+                      prefs(LIGHT), fit(W, H),
+                      panel("history"), ["ui.set", {"tool": "move"}],
+                      E("select.all"), E("edit.freeTransform"),
+                  ]),
+                  ("09-export", "light", "kiss.jpg", lambda W, H: [
+                      prefs(LIGHT), fit(W, H),
+                      E("layer.newAdjustmentLayer.brightnessContrast", {"brightness": 8, "contrast": 12}), rename("Light"),
+                      panel("layers"), ["ui.set", {"tool": "move"}],
+                      ["ui.menu.invoke", {"id": "file.export.exportAs"}],
+                  ]),
+              ]
+
+          heights = {}
+          for _, _, art, _ in shots():
+              if art not in heights:
+                  w, h = subprocess.check_output(["identify", "-format", "%w %h", f"art/{art}"]).decode().split()
+                  heights[art] = round(float(h) * WIDTH / float(w))
+          print("heights:", heights, flush=True)
+
+          for name, theme, art, build in shots():
+              H = heights[art]
+              script = build(WIDTH, H)
+              cmd = ["cargo", "run", "-q", "-p", "photosweet-ui-egui", "--example", "snapshot", "--",
+                     "--out", f"{OUT}/{name}.png", "--size", "1440x900", "--scale", "2",
+                     "--open", f"art/{art}", "--system-theme", theme, "--script", json.dumps(script)]
+              print(f"=== {name} ({art}, {WIDTH}x{H}, {theme}) ===", flush=True)
+              if subprocess.run(cmd).returncode != 0:
+                  print(f"FAILED {name}", flush=True)
+          PY
           mkdir -p out
-          shot() {
-            name="$1"; shift
-            echo "=== $name ==="
-            cargo run -q -p photosweet-ui-egui --example snapshot -- \
-              --out "out/$name.png" --size 1440x900 --scale 2 "$@" || echo "FAILED $name"
-          }
-
-          shot 01-hero --open art/wave.jpg --system-theme dark --script '[
-            ["ui.set", {"theme": "pro", "tool": "move"}],
-            ["layer.newAdjustmentLayer.curves", {"points": [[0,0],[64,48],[160,190],[255,255]]}],
-            ["layer.setProps", {"name": "Tone curve"}],
-            ["layer.newAdjustmentLayer.vibrance", {"vibrance": 35, "saturation": 6}],
-            ["layer.setProps", {"name": "Vibrance", "blend": "Soft Light", "opacity": 0.7}],
-            ["shape.create", {"kind": "rect", "rect": [180, 240, 1180, 430], "fill": "#f8fafc", "name": "Caption card"}],
-            ["layer.layerStyle.dropShadow", {"distance": 26, "size": 48, "opacity": 0.42}],
-            ["type.create", {"x": 270, "y": 400, "text": "The Great Wave", "size": 130, "name": "Title"}],
-            ["type.create", {"x": 280, "y": 590, "text": "Katsushika Hokusai  ·  1831", "size": 44, "name": "Credit"}],
-            ["layer.select", {"name": "Title"}],
-            ["ui.menu.invoke", {"id": "image.adjustments.curves"}]
-          ]'
-
-          shot 02-mask --open art/girl.jpg --system-theme light --script '[
-            ["ui.set", {"theme": "studioLight", "tool": "move"}],
-            ["select.rect", {"x": 430, "y": 260, "width": 520, "height": 700, "ellipse": true}],
-            ["layer.newAdjustmentLayer.hueSaturation", {"hue": 0, "saturation": -100}],
-            ["layer.setProps", {"name": "Black and White"}],
-            ["layer.layerMask.revealSelection", {}],
-            ["layer.select", {"name": "Black and White"}]
-          ]'
-
-          shot 03-type --open art/sierra.jpg --system-theme dark --script '[
-            ["ui.set", {"theme": "pro", "tool": "type"}],
-            ["layer.newAdjustmentLayer.levels", {"input": [10, 245]}],
-            ["layer.setProps", {"name": "Levels", "opacity": 0.85}],
-            ["type.create", {"x": 150, "y": 220, "text": "SIERRA NEVADA", "size": 148, "name": "Headline"}],
-            ["type.create", {"x": 160, "y": 420, "text": "Albert Bierstadt  ·  1868", "size": 52, "name": "Byline"}],
-            ["type.create", {"x": 160, "y": 640, "text": "A landscape painted in a single summer, from sketches made on the trail.", "size": 44, "name": "Caption"}],
-            ["layer.select", {"name": "Headline"}]
-          ]'
-
-          shot 04-style --open art/earthrise.jpg --system-theme dark --script '[
-            ["ui.set", {"theme": "pro", "tool": "move"}],
-            ["type.create", {"x": 320, "y": 520, "text": "EARTHRISE", "size": 170, "name": "EARTHRISE"}],
-            ["layer.layerStyle.outerGlow", {"size": 34, "color": "#f59e0b"}],
-            ["layer.layerStyle.stroke", {"size": 3, "color": "#f8fafc", "add": true}],
-            ["ui.dialog.open", {"kind": "layerStyle", "effect": "outerGlow"}]
-          ]'
-
-          shot 05-vector --open art/waterlilies.jpg --system-theme dark --script '[
-            ["ui.set", {"theme": "pro", "tool": "directSelection"}],
-            ["layer.newAdjustmentLayer.curves", {"points": [[0,0],[128,132],[255,255]]}],
-            ["layer.setProps", {"name": "Depth"}],
-            ["shape.create", {"kind": "ellipse", "rect": [300, 300, 620, 620], "fill": "#8b5cf6", "name": "Badge"}],
-            ["shape.create", {"kind": "ellipse", "rect": [380, 380, 460, 460], "fill": "#f43f5e", "name": "Sun"}],
-            ["shape.create", {"kind": "star", "rect": [530, 530, 160, 160], "fill": "#fbbf24", "name": "Spark"}],
-            ["layer.select", {"name": "Spark"}]
-          ]'
-
-          shot 06-filter --open art/starrynight.jpg --system-theme dark --script '[
-            ["ui.set", {"theme": "pro", "tool": "move"}],
-            ["select.rect", {"x": 420, "y": 300, "width": 620, "height": 620, "ellipse": true}],
-            ["ui.menu.invoke", {"id": "filter.distort.twirl"}]
-          ]'
-
-          shot 07-export --open art/kiss.jpg --system-theme light --script '[
-            ["ui.set", {"theme": "studioLight", "tool": "move"}],
-            ["layer.newAdjustmentLayer.brightnessContrast", {"brightness": 6, "contrast": 14}],
-            ["layer.setProps", {"name": "Light"}],
-            ["ui.menu.invoke", {"id": "file.export.exportAs"}]
-          ]'
-
-          shot 08-transform --open art/tetons.jpg --system-theme dark --script '[
-            ["ui.set", {"theme": "pro", "tool": "move"}],
-            ["select.all", {}],
-            ["edit.freeTransform", {}],
-            ["ui.pointer", {"events": [{"kind": "down", "x": 300, "y": 300}, {"kind": "move", "x": 620, "y": 470}, {"kind": "up", "x": 620, "y": 470}]}]
-          ]'
+          python3 capture.py
+          ls -l out
 
       - uses: actions/upload-artifact@v4
         if: always()
