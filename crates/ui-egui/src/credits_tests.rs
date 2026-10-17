@@ -1,6 +1,7 @@
-//! The Contributors tab as drawn: the table's header stays put while its rows scroll, its columns
+//! The credits tables as drawn: the table's header stays put while its rows scroll, its columns
 //! keep their places whatever the sort, counts line up on the right, and every column fits the
-//! About window; the grab bag's rows are evenly spaced.
+//! width they are drawn at; the grab bag's rows are evenly spaced. (The About window no longer
+//! shows them, but the drawing code is still exercised here.)
 
 use egui::{Rect, accesskit::Role, vec2};
 use egui_kittest::Harness;
@@ -8,7 +9,7 @@ use egui_kittest::kittest::{NodeT, Queryable};
 
 use super::*;
 
-/// The About window's width (`dialogs.rs` gives its tabs 700 pt).
+/// The width the credits tables are drawn at (the About window's roomier 700 pt).
 const WIDTH: f32 = 700.0;
 
 fn leak(s: String) -> &'static str {
@@ -200,17 +201,14 @@ fn the_models_table_lines_counts_up_on_the_right_under_a_rule_of_headers() {
     assert!(h.query_all_by_label("<1%").count() == 5, "small shares read <1%");
 }
 
-/// The About window on `tab` (and the Contributors table when `table`): the top of its title and of
-/// its OK button, and the bottom of the lowest thing between them.
-fn about_window(tab: &str, table: bool) -> (f32, f32, f32) {
+/// The About window: the top of its title and of its OK button, and the bottom of the lowest thing
+/// between them.
+fn about_window() -> (f32, f32, f32) {
     let mut h = Harness::builder().with_size(vec2(1440.0, 900.0)).with_max_steps(64).build_eframe(|cc| {
         crate::PhotosweetApp::setup_context(&cc.egui_ctx, Default::default());
         crate::PhotosweetApp::new(photosweet_engine::Session::new(), crate::Services::default())
     });
-    let mut fields = serde_json::Map::new();
-    fields.insert("tab".into(), serde_json::json!(tab));
-    h.state_mut().ui.open_dialog(crate::state::DialogKind::About, fields);
-    h.ctx.data_mut(|d| d.insert_temp(egui::Id::new("credits_view"), View { table, ..View::default() }));
+    h.state_mut().ui.open_dialog(crate::state::DialogKind::About, serde_json::Map::new());
     h.run_steps(6);
     let ok = h.query_all_by_role(Role::Button).find(|n| n.accesskit_node().label().as_deref() == Some("OK")).map(|n| n.rect()).expect("the OK button");
     // The dialog's contents: everything between its title and the OK button.
@@ -225,21 +223,8 @@ fn about_window(tab: &str, table: bool) -> (f32, f32, f32) {
 }
 
 #[test]
-fn about_and_models_end_where_their_content_does() {
-    for tab in ["about", "models"] {
-        let (_, ok, lowest) = about_window(tab, false);
-        assert!(lowest > f32::MIN, "{tab}: nothing above OK");
-        assert!(ok - lowest < 40.0, "{tab}: {} pt of blank space above OK", ok - lowest);
-    }
-}
-
-#[test]
-fn switching_the_contributors_view_keeps_the_window_size() {
-    // A new window is placed by its first frame, so compare the height, title to OK.
-    let height = |table| {
-        let (title, ok, _) = about_window("contributors", table);
-        ok - title
-    };
-    let (bag, table) = (height(false), height(true));
-    assert!((bag - table).abs() < 0.5, "{bag} pt tall on the grab bag, {table} pt on the table");
+fn the_about_window_ends_where_its_content_does() {
+    let (_, ok, lowest) = about_window();
+    assert!(lowest > f32::MIN, "nothing above OK");
+    assert!(ok - lowest < 40.0, "{} pt of blank space above OK", ok - lowest);
 }

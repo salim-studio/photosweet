@@ -247,7 +247,9 @@ const SORT_ARROW_W: f32 = 12.0;
 const CELL_PAD: f32 = 6.0;
 const NAME_MIN_W: f32 = 110.0;
 
-/// About ▸ Contributors: a name toggle, a sort, and the list as a grab bag or a table.
+/// The contributor list: a name toggle, a sort, and the list as a grab bag or a table. Nothing in
+/// the shell opens it any more (the About window shows only the blurb and links); keep it compiled
+/// so re-wiring it back in is one call.
 pub fn contributors_ui(app: &mut PhotosweetApp, ui: &mut egui::Ui) {
     contributors_in(app, ui, CONTRIBUTORS, TOTAL_COMMITS);
 }
@@ -483,7 +485,7 @@ fn header_cell(ui: &mut egui::Ui, t: &crate::theme::Tokens, label: &str, numeric
     resp
 }
 
-/// About ▸ Models: AI models credited in Co-Authored-By trailers.
+/// The model list: AI models credited in Co-Authored-By trailers. See [`contributors_ui`].
 pub fn models_ui(ui: &mut egui::Ui) {
     models_in(ui, MODELS, TOTAL_COMMITS);
 }

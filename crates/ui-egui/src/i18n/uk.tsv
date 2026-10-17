@@ -870,6 +870,7 @@
 	Time	Час
 	Artist	Автор
 	Copyright	Авторське право
+	Copyright {holder}	Авторське право {holder}
 	Enter description…	Введіть опис…
 	Adobe RGB (1998) compatible	Сумісний з Adobe RGB (1998)
 	Gray Gamma 2.2	Сіра гама 2.2

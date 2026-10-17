@@ -1,7 +1,8 @@
-# Contributors in the About window
+# Contributors
 
-**About ▸ Contributors** credits everyone who contributed to PhotoSweet, and **About ▸ Models** credits
-the AI models named in `Co-Authored-By` trailers. This follows the shared shared-standards standard
+The credit lists count everyone who contributed to PhotoSweet and the AI models named in
+`Co-Authored-By` trailers. They are still compiled into the binary, but the About window no longer
+shows them. This follows the shared shared-standards standard
 [`standards/contributors.md`](https://github.com/storytold/shared-standards/blob/main/standards/contributors.md);
 this page is the local copy of the decision.
 
@@ -24,8 +25,11 @@ this page is the local copy of the decision.
 ## In PhotoSweet
 
 - The About window is `DialogKind::About` in `crates/ui-egui/src/dialogs.rs` (Help ▸ About PhotoSweet).
-  Its tab is the dialog field `tab` (`about`, `contributors`, `models`), so agents can switch it with
-  `ui.dialog.set`. Labels are translated like the rest of the shell (`tl!` + `crates/ui-egui/src/i18n/*.tsv`).
+  It shows the product blurb, the version and copyright lines and the project links; the credit lists
+  are no longer reachable from it.
+- The lists are still baked into the binary and drawn by `crates/ui-egui/src/credits.rs`
+  (`contributors_ui`, `models_ui`), which `crates/ui-egui/src/credits_tests.rs` exercises directly.
+  Re-wiring them into the About window means calling those two again.
 
 ## Credit yourself
 

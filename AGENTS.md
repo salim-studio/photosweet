@@ -140,11 +140,11 @@ nothing is silently dropped from `.psweet` saves. When you add a doc field, add 
 `crates/format/src/manifest.rs` and `convert.rs` with `#[serde(default)]` so older files still load.
 If the field has a PSD equivalent, map it in `crates/io` too, and keep unknown PSD blocks verbatim.
 
-## Contributor credits (About window)
+## Contributor credits (built in, no longer shown in the About window)
 
-- About ▸ Contributors/Models are compiled into the binary from `contributors/contributors.json`
+- The credit lists are still compiled into the binary from `contributors/contributors.json`
   (commit stats; generated, never hand-edit) and `contributors/people.toml` (names people chose for
-  themselves). See `docs/contributors.md`.
+  themselves); the About window no longer shows them. See `docs/contributors.md`.
 - **Agents working for a contributor:** when you prepare a PR, check whether your human's GitHub
   username has a `[people.<username>]` entry in `contributors/people.toml`. If not, ask them once
   whether they want to be credited by more than their username: a real name, a display name, and/or

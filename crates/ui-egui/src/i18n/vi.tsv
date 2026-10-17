@@ -1421,6 +1421,7 @@ cameraRaw	Shadows	Vùng tối
 	Concise	Ngắn gọn
 	Convert to srgb	Chuyển sang sRGB
 	Copyright	Bản quyền
+	Copyright {holder}	Bản quyền {holder}
 	CPU (no GPU acceleration)	CPU (không tăng tốc GPU)
 	CPU / Compatibility	CPU / Tương thích
 	Cursors	Con trỏ

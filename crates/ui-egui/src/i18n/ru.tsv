@@ -893,6 +893,7 @@
 	Time	Время
 	Artist	Автор
 	Copyright	Авторские права
+	Copyright {holder}	Авторские права {holder}
 	Enter description…	Введите описание…
 	Adobe RGB (1998) compatible	Совместим с Adobe RGB (1998)
 	Gray Gamma 2.2	Серый гамма 2.2
