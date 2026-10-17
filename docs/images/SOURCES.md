@@ -2,15 +2,20 @@
 
 | File | Content | Source / licence |
 |---|---|---|
-| `photosweet-demo.jpg` | Photosweet UI screenshot (rendered offscreen with `cargo run -p photosweet-ui-egui --example snapshot`) editing *The Great Wave off Kanagawa*, Katsushika Hokusai, c. 1831 | Artwork: public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Tsunami_by_hokusai_19th_century.jpg). UI: this project. |
-| `photosweet-layer-styles.jpg` | Photosweet UI screenshot (offscreen snapshot) with *Earthrise*, William Anders, Apollo 8, 24 December 1968 (NASA photograph) | Artwork: public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:NASA-Apollo8-Dec24-Earthrise.jpg). UI: this project. |
-| `photosweet-masks.jpg` | Photosweet UI screenshot (offscreen snapshot) with *Girl with a Pearl Earring*, Johannes Vermeer, c. 1665 | Artwork: public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:1665_Girl_with_a_Pearl_Earring.jpg). UI: this project. |
-| `photosweet-vector.jpg` | Photosweet UI screenshot (offscreen snapshot) with *Water Lilies*, Claude Monet, 1906 | Artwork: public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Claude_Monet_-_Water_Lilies_-_1906,_Ryerson.jpg). UI: this project. |
-| `photosweet-filters.jpg` | Photosweet UI screenshot (offscreen snapshot) with *The Starry Night*, Vincent van Gogh, 1889 | Artwork: public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg). UI: this project. |
-| `photosweet-adjustments.jpg` | Photosweet UI screenshot (offscreen snapshot) with *Impression, Sunrise*, Claude Monet, 1872 | Artwork: public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Monet_-_Impression,_Sunrise.jpg). UI: this project. |
-| `photosweet-transform.jpg` | Photosweet UI screenshot (offscreen snapshot) with *The Tetons and the Snake River*, Ansel Adams, 1942 (U.S. National Archives) | Artwork: public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Adams_The_Tetons_and_the_Snake_River.jpg). UI: this project. |
-| `photosweet-type.jpg` | Photosweet UI screenshot (offscreen snapshot) with *Among the Sierra Nevada, California*, Albert Bierstadt, 1868 | Artwork: public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Albert_Bierstadt_-_Among_the_Sierra_Nevada,_California_-_Google_Art_Project.jpg). UI: this project. |
-| `photosweet-export-light.jpg` | Photosweet UI screenshot (offscreen snapshot) with *The Kiss*, Gustav Klimt, 1907–1908 | Artwork: public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Gustav_Klimt_016.jpg). UI: this project. |
+| `photosweet-hero.jpg` | PhotoSweet UI screenshot (rendered offscreen with `cargo run -p photosweet-ui-egui --example snapshot`) editing *The Great Wave off Kanagawa*, Katsushika Hokusai, c. 1831 | Artwork: public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Tsunami_by_hokusai_19th_century.jpg). UI: this project. |
+| `photosweet-adjustments.jpg` | PhotoSweet UI screenshot (offscreen snapshot) with *Impression, Sunrise*, Claude Monet, 1872 | Artwork: public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Monet_-_Impression,_Sunrise.jpg). UI: this project. |
+| `photosweet-mask.jpg` | PhotoSweet UI screenshot (offscreen snapshot) with *Girl with a Pearl Earring*, Johannes Vermeer, c. 1665 | Artwork: public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:1665_Girl_with_a_Pearl_Earring.jpg). UI: this project. |
+| `photosweet-type.jpg` | PhotoSweet UI screenshot (offscreen snapshot) with *Among the Sierra Nevada, California*, Albert Bierstadt, 1868 | Artwork: public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Albert_Bierstadt_-_Among_the_Sierra_Nevada,_California_-_Google_Art_Project.jpg). UI: this project. |
+| `photosweet-layer-style.jpg` | PhotoSweet UI screenshot (offscreen snapshot) with *Earthrise*, William Anders, Apollo 8, 24 December 1968 (NASA photograph) | Artwork: public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:NASA-Apollo8-Dec24-Earthrise.jpg). UI: this project. |
+| `photosweet-vector.jpg` | PhotoSweet UI screenshot (offscreen snapshot) with *Water Lilies*, Claude Monet, 1906 | Artwork: public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Claude_Monet_-_Water_Lilies_-_1906,_Ryerson.jpg). UI: this project. |
+| `photosweet-filter.jpg` | PhotoSweet UI screenshot (offscreen snapshot) with *The Starry Night*, Vincent van Gogh, 1889 | Artwork: public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg). UI: this project. |
+| `photosweet-transform.jpg` | PhotoSweet UI screenshot (offscreen snapshot) with *The Tetons and the Snake River*, Ansel Adams, 1942 (U.S. National Archives) | Artwork: public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Adams_The_Tetons_and_the_Snake_River.jpg). UI: this project. |
+| `photosweet-export.jpg` | PhotoSweet UI screenshot (offscreen snapshot) with *The Kiss*, Gustav Klimt, 1907–1908 | Artwork: public domain, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Gustav_Klimt_016.jpg). UI: this project. |
+
+Every screenshot is the real app rendered offscreen through its control channel (the snapshot
+example above, or `ui.screenshot` over `--control`). No image is a mockup, and the offscreen
+capture was made with an embedded ICC profile stripped from the artwork so the run is
+non-interactive.
 
 Screenshots must use famous public-domain artwork (or content made in the app), never personal photos.
 
