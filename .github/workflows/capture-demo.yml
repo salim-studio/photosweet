@@ -75,9 +75,15 @@ jobs:
           def panel(name):
               return ["ui.menu.invoke", {"id": "window.panel.activate", "params": {"panel": name}}]
 
-          def zoom(W, H):  # what "fit" would be if the harness knew the window size
-              z = min(0.60, 0.92 * 950 / W, 0.92 * 700 / H)
-              return ["ui.set", {"zoom": round(z, 3), "center": [W // 2, H // 2]}]
+          # `view.zoom` counts *device* pixels per document pixel (`canvas::fit_view` multiplies by
+          # ppp), so a plain points-per-pixel scale has to be multiplied by the capture scale.
+          PPP = 2.0
+          # The pasteboard at 1440x900, in points, measured from a capture (rulers included).
+          CANVAS = (1045.0, 746.0)
+
+          def zoom(W, H, fill=0.88):  # `fill` of the canvas, as "fit" would leave it
+              pt = min(fill * CANVAS[0] / W, fill * CANVAS[1] / H)
+              return ["ui.set", {"zoom": round(pt * PPP, 4), "center": [W // 2, H // 2]}]
 
           def select(name):
               return E("layer.select", {"name": name})
@@ -150,7 +156,7 @@ jobs:
                       select("Tonal curve"), panel("layers"), ["ui.set", {"tool": "move"}],
                   ]),
                   ("photosweet-adjustments", "light", "sunrise.jpg", lambda W, H: [
-                      *light(), fit(W, H), zoom(W, H),
+                      *light(), fit(W, H), zoom(W, H, fill=0.74),
                       E("layer.newAdjustmentLayer.levels", {}), rename("Levels"),
                       E("layer.newAdjustmentLayer.vibrance", {"vibrance": 34, "saturation": 4}), rename("Vibrance"),
                       panel("layers"), ["ui.set", {"tool": "move"}],
@@ -172,7 +178,7 @@ jobs:
                       select("Headline"), panel("layers"), ["ui.set", {"tool": "type"}],
                   ]),
                   ("photosweet-layer-style", "light", "earthrise.jpg", lambda W, H: [
-                      *light(), fit(W, H), zoom(W, H),
+                      *light(), fit(W, H), zoom(W, H, fill=0.74),
                       E("type.create", {"x": round(0.13 * W), "y": round(0.50 * H), "text": "EARTHRISE", "size": 130, "name": "EARTHRISE"}),
                       E("layer.layerStyle.outerGlow", {"size": 40, "color": "#fbbf24", "opacity": 0.85}),
                       E("layer.layerStyle.stroke", {"size": 4, "color": "#ffffff", "add": True}),
@@ -185,7 +191,7 @@ jobs:
                       select("Tile"), panel("layers"), ["ui.set", {"tool": "pen"}],
                   ]),
                   ("photosweet-filter", "light", "starrynight.jpg", lambda W, H: [
-                      *light(), fit(W, H), zoom(W, H),
+                      *light(), fit(W, H), zoom(W, H, fill=0.74),
                       E("select.rect", {"x": round(0.24 * W), "y": round(0.16 * H), "width": round(0.50 * W), "height": round(0.58 * H), "ellipse": True}),
                       panel("layers"), ["ui.set", {"tool": "move"}],
                       ["ui.menu.invoke", {"id": "filter.distort.twirl"}],
@@ -196,7 +202,7 @@ jobs:
                       E("select.all"), E("edit.freeTransform"),
                   ]),
                   ("photosweet-export", "light", "kiss.jpg", lambda W, H: [
-                      *light(), fit(W, H), zoom(W, H),
+                      *light(), fit(W, H), zoom(W, H, fill=0.74),
                       E("layer.newAdjustmentLayer.brightnessContrast", {"brightness": 8, "contrast": 12}), rename("Light"),
                       panel("layers"), ["ui.set", {"tool": "move"}],
                       ["ui.menu.invoke", {"id": "file.export.exportAs"}],
