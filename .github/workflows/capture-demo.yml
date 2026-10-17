@@ -44,7 +44,7 @@ jobs:
           get starrynight.jpg "Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg"
           get tetons.jpg      "Adams_The_Tetons_and_the_Snake_River.jpg"
           get kiss.jpg        "Gustav_Klimt_016.jpg"
-          identify -format "%f %wx%h\n" art/*.jpg
+          ls -l art
 
       - name: Build the snapshot example
         run: cargo build -p photosweet-ui-egui --example snapshot
@@ -74,6 +74,22 @@ jobs:
 
           def panel(name):
               return ["window.panel.activate", {"panel": name}]
+
+          def jpeg_size(path):  # ImageMagick is not installed on the runner
+              data = open(path, "rb").read()
+              i = 2
+              while i < len(data) - 9:
+                  if data[i] != 0xFF:
+                      i += 1
+                      continue
+                  marker = data[i + 1]
+                  if marker in (0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF):
+                      return (data[i + 7] << 8) | data[i + 8], (data[i + 5] << 8) | data[i + 6]
+                  if marker in (0xD8, 0xD9) or 0xD0 <= marker <= 0xD7:
+                      i += 2
+                      continue
+                  i += 2 + ((data[i + 2] << 8) | data[i + 3])
+              raise ValueError(f"no SOF marker in {path}")
 
           def select(name):
               return E("layer.select", {"name": name})
@@ -160,8 +176,8 @@ jobs:
           heights = {}
           for _, _, art, _ in shots():
               if art not in heights:
-                  w, h = subprocess.check_output(["identify", "-format", "%w %h", f"art/{art}"]).decode().split()
-                  heights[art] = round(float(h) * WIDTH / float(w))
+                  w, h = jpeg_size(f"art/{art}")
+                  heights[art] = round(h * WIDTH / w)
           print("heights:", heights, flush=True)
 
           for name, theme, art, build in shots():
