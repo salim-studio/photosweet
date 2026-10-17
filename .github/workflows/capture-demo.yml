@@ -60,20 +60,24 @@ jobs:
 
           OUT = "out"
           WIDTH = 1600  # every document is scaled to this width so compositions are predictable
-          DARK = {"interface.appearanceMode": "dark", "interface.darkTheme": "pro"}
-          LIGHT = {"interface.appearanceMode": "light", "interface.lightTheme": "studioLight"}
 
           def E(cmd, params=None):
               return ["engine.execute", {"command": cmd, **({"params": params} if params is not None else {})}]
 
-          def prefs(values):
-              return E("prefs.set", {"values": values})
+          def light():  # a deterministic starting point: Essentials layout, light theme
+              return [["ui.menu.invoke", {"id": "window.workspace.essentials"}],
+                      ["ui.menu.invoke", {"id": "window.theme.studioLight"}],
+                      E("color.profileMismatch", {"action": "preserve"})]
 
           def fit(W, H):  # scale the opened artwork to a fixed width
               return E("image.imageSize", {"width": W, "height": H, "resample": "bicubic"})
 
           def panel(name):
-              return ["window.panel.activate", {"panel": name}]
+              return ["ui.menu.invoke", {"id": "window.panel.activate", "params": {"panel": name}}]
+
+          def zoom(W, H):  # what "fit" would be if the harness knew the window size
+              z = min(0.60, 0.92 * 950 / W, 0.92 * 700 / H)
+              return ["ui.set", {"zoom": round(z, 3), "center": [W // 2, H // 2]}]
 
           def jpeg_size(path):  # ImageMagick is not installed on the runner
               data = open(path, "rb").read()
@@ -99,50 +103,50 @@ jobs:
 
           def badge(W, H):  # the brand gradient, drawn as shape layers
               return [
-                  E("shape.create", {"kind": "roundedRect", "rect": [round(0.28 * W), round(0.24 * H), round(0.44 * W), round(0.44 * H)], "fill": "#ffffff", "name": "Badge"}),
-                  E("layer.layerStyle.dropShadow", {"distance": 22, "size": 44, "opacity": 0.35}),
-                  E("shape.create", {"kind": "ellipse", "rect": [round(0.31 * W), round(0.27 * H), round(0.38 * W), round(0.38 * H)], "fill": "#8b5cf6", "name": "Lotus"}),
-                  E("shape.create", {"kind": "ellipse", "rect": [round(0.39 * W), round(0.35 * H), round(0.22 * W), round(0.22 * H)], "fill": "#f43f5e", "name": "Sun"}),
-                  E("shape.create", {"kind": "ellipse", "rect": [round(0.475 * W), round(0.435 * H), round(0.09 * W), round(0.09 * H)], "fill": "#fbbf24", "name": "Spark"}),
+                  E("shape.create", {"kind": "roundedRect", "rect": [round(0.29 * W), round(0.30 * H), round(0.42 * W), round(0.42 * H)], "fill": "#8b5cf6", "name": "Tile"}),
+                  E("layer.layerStyle.dropShadow", {"distance": 26, "size": 52, "opacity": 0.38}),
+                  E("shape.create", {"kind": "ellipse", "rect": [round(0.36 * W), round(0.38 * H), round(0.28 * W), round(0.28 * H)], "fill": "#f43f5e", "name": "Disc"}),
+                  E("shape.create", {"kind": "ellipse", "rect": [round(0.475 * W), round(0.50 * H), round(0.07 * W), round(0.07 * H)], "fill": "#fbbf24", "name": "Spark"}),
               ]
 
           def shots():  # (name, system-theme, artwork, builder(W, H) -> script)
               return [
-                  ("01-hero", "dark", "wave.jpg", lambda W, H: [
-                      prefs(DARK), fit(W, H),
+                  ("01-hero", "light", "wave.jpg", lambda W, H: [
+                      *light(), fit(W, H), zoom(W, H),
                       E("layer.newAdjustmentLayer.curves", {"points": [[0, 0], [64, 52], [176, 204], [255, 255]]}),
                       rename("Tonal curve"),
                       E("layer.newAdjustmentLayer.vibrance", {"vibrance": 28, "saturation": 6}),
                       rename("Vibrance", blend="Soft Light", opacity=0.65),
-                      E("shape.create", {"kind": "rect", "rect": [round(0.045 * W), round(0.60 * H), round(0.47 * W), round(0.30 * H)], "fill": "#ffffff", "name": "Caption card"}),
+                      E("shape.create", {"kind": "rect", "rect": [round(0.055 * W), round(0.585 * H), round(0.46 * W), round(0.315 * H)], "fill": "#ffffff", "name": "Caption card"}),
                       E("layer.layerStyle.dropShadow", {"distance": 34, "size": 70, "opacity": 0.38}),
-                      E("type.create", {"x": round(0.075 * W), "y": round(0.640 * H), "text": "The Great Wave", "size": 92, "name": "Title"}),
+                      E("type.create", {"x": round(0.075 * W), "y": round(0.640 * H), "text": "The Great Wave", "size": 104, "name": "Title"}),
                       E("type.create", {"x": round(0.079 * W), "y": round(0.80 * H), "text": "Katsushika Hokusai  ·  1831", "size": 36, "name": "Credit"}),
                       select("Tonal curve"), panel("layers"), ["ui.set", {"tool": "move"}],
                   ]),
                   ("02-adjust", "light", "sunrise.jpg", lambda W, H: [
-                      prefs(LIGHT), fit(W, H),
+                      *light(), fit(W, H), zoom(W, H),
                       E("layer.newAdjustmentLayer.levels", {}), rename("Levels"),
                       E("layer.newAdjustmentLayer.vibrance", {"vibrance": 34, "saturation": 4}), rename("Vibrance"),
                       panel("layers"), ["ui.set", {"tool": "move"}],
                       ["ui.menu.invoke", {"id": "image.adjustments.curves"}],
                   ]),
                   ("03-mask", "light", "girl.jpg", lambda W, H: [
-                      prefs(LIGHT), fit(W, H),
+                      *light(), fit(W, H), zoom(W, H),
                       E("select.rect", {"x": round(0.27 * W), "y": round(0.18 * H), "width": round(0.46 * W), "height": round(0.48 * H), "ellipse": True}),
+                      E("select.inverse"),
                       E("layer.newAdjustmentLayer.hueSaturation", {"hue": 0, "saturation": -100}), rename("Colour back"),
                       panel("layers"), ["ui.set", {"tool": "move"}],
                   ]),
                   ("04-type", "light", "sierra.jpg", lambda W, H: [
-                      prefs(LIGHT), fit(W, H),
+                      *light(), fit(W, H), zoom(W, H),
                       E("layer.newAdjustmentLayer.curves", {"points": [[0, 0], [128, 132], [255, 255]]}), rename("Depth"),
-                      E("type.create", {"x": round(0.06 * W), "y": round(0.13 * H), "text": "SIERRA NEVADA", "size": 104, "name": "Headline"}),
+                      E("type.create", {"x": round(0.06 * W), "y": round(0.13 * H), "text": "SIERRA NEVADA", "size": 96, "name": "Headline"}),
                       E("type.create", {"x": round(0.065 * W), "y": round(0.42 * H), "text": "Albert Bierstadt  ·  1868", "size": 46, "name": "Byline"}),
                       E("type.create", {"x": round(0.065 * W), "y": round(0.60 * H), "text": "Painted in a single summer, from sketches made on the trail.", "size": 40, "name": "Caption"}),
                       select("Headline"), panel("layers"), ["ui.set", {"tool": "type"}],
                   ]),
-                  ("05-style", "dark", "earthrise.jpg", lambda W, H: [
-                      prefs(DARK), fit(W, H),
+                  ("05-style", "light", "earthrise.jpg", lambda W, H: [
+                      *light(), fit(W, H), zoom(W, H),
                       E("type.create", {"x": round(0.13 * W), "y": round(0.50 * H), "text": "EARTHRISE", "size": 130, "name": "EARTHRISE"}),
                       E("layer.layerStyle.outerGlow", {"size": 40, "color": "#fbbf24", "opacity": 0.85}),
                       E("layer.layerStyle.stroke", {"size": 4, "color": "#ffffff", "add": True}),
@@ -150,23 +154,23 @@ jobs:
                       ["ui.dialog.open", {"kind": "layerStyle", "effect": "outerGlow"}],
                   ]),
                   ("06-vector", "light", "waterlilies.jpg", lambda W, H: [
-                      prefs(LIGHT), fit(W, H),
+                      *light(), fit(W, H), zoom(W, H),
                       *badge(W, H),
-                      select("Badge"), panel("layers"), ["ui.set", {"tool": "pen"}],
+                      select("Tile"), panel("layers"), ["ui.set", {"tool": "pen"}],
                   ]),
-                  ("07-filter", "dark", "starrynight.jpg", lambda W, H: [
-                      prefs(DARK), fit(W, H),
+                  ("07-filter", "light", "starrynight.jpg", lambda W, H: [
+                      *light(), fit(W, H), zoom(W, H),
                       E("select.rect", {"x": round(0.24 * W), "y": round(0.16 * H), "width": round(0.50 * W), "height": round(0.58 * H), "ellipse": True}),
                       panel("layers"), ["ui.set", {"tool": "move"}],
                       ["ui.menu.invoke", {"id": "filter.distort.twirl"}],
                   ]),
                   ("08-transform", "light", "tetons.jpg", lambda W, H: [
-                      prefs(LIGHT), fit(W, H),
+                      *light(), fit(W, H), zoom(W, H),
                       panel("history"), ["ui.set", {"tool": "move"}],
                       E("select.all"), E("edit.freeTransform"),
                   ]),
                   ("09-export", "light", "kiss.jpg", lambda W, H: [
-                      prefs(LIGHT), fit(W, H),
+                      *light(), fit(W, H), zoom(W, H),
                       E("layer.newAdjustmentLayer.brightnessContrast", {"brightness": 8, "contrast": 12}), rename("Light"),
                       panel("layers"), ["ui.set", {"tool": "move"}],
                       ["ui.menu.invoke", {"id": "file.export.exportAs"}],
