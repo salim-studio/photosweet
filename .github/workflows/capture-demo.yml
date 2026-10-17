@@ -56,7 +56,7 @@ jobs:
         run: |
           set -eu
           cat > capture.py <<'PY'
-          import json, subprocess
+          import json, os, subprocess
 
           OUT = "out"
           WIDTH = 1600  # every document is scaled to this width so compositions are predictable
@@ -64,10 +64,10 @@ jobs:
           def E(cmd, params=None):
               return ["engine.execute", {"command": cmd, **({"params": params} if params is not None else {})}]
 
-          def light():  # a deterministic starting point: Essentials layout, light theme
+          def light():  # a deterministic starting point: Essentials layout, light theme, docked panels
               return [["ui.menu.invoke", {"id": "window.workspace.essentials"}],
-                      ["ui.menu.invoke", {"id": "window.theme.studioLight"}],
-                      E("color.profileMismatch", {"action": "preserve"})]
+                      ["ui.menu.invoke", {"id": "window.panel.dock", "params": {"panel": "properties"}}],
+                      ["ui.menu.invoke", {"id": "window.theme.studioLight"}]]
 
           def fit(W, H):  # scale the opened artwork to a fixed width
               return E("image.imageSize", {"width": W, "height": H, "resample": "bicubic"})
@@ -78,6 +78,38 @@ jobs:
           def zoom(W, H):  # what "fit" would be if the harness knew the window size
               z = min(0.60, 0.92 * 950 / W, 0.92 * 700 / H)
               return ["ui.set", {"zoom": round(z, 3), "center": [W // 2, H // 2]}]
+
+          def select(name):
+              return E("layer.select", {"name": name})
+
+          def rename(name, **props):
+              return E("layer.setProps", {"name": name, **props})
+
+          def strip_icc(path):  # an embedded profile would raise a modal prompt that blocks the script
+              data = open(path, "rb").read()
+              if data[:2] != bytes([0xFF, 0xD8]):
+                  return
+              out, i = bytearray(data[:2]), 2
+              while i < len(data) - 3:
+                  if data[i] != 0xFF:
+                      break
+                  marker = data[i + 1]
+                  if marker == 0xDA:
+                      out += data[i:]
+                      break
+                  if marker == 0xFF:
+                      i += 1
+                      continue
+                  if marker == 0xD8 or 0xD0 <= marker <= 0xD9:
+                      out += data[i:i + 2]
+                      i += 2
+                      continue
+                  length = (data[i + 2] << 8) | data[i + 3]
+                  seg = data[i:i + 2 + length]
+                  if not (marker == 0xE2 and seg[4:15] == b"ICC_PROFILE"):
+                      out += seg
+                  i += 2 + length
+              open(path, "wb").write(bytes(out))
 
           def jpeg_size(path):  # ImageMagick is not installed on the runner
               data = open(path, "rb").read()
@@ -95,12 +127,6 @@ jobs:
                   i += 2 + ((data[i + 2] << 8) | data[i + 3])
               raise ValueError(f"no SOF marker in {path}")
 
-          def select(name):
-              return E("layer.select", {"name": name})
-
-          def rename(name, **props):
-              return E("layer.setProps", {"name": name, **props})
-
           def badge(W, H):  # the brand gradient, drawn as shape layers
               return [
                   E("shape.create", {"kind": "roundedRect", "rect": [round(0.29 * W), round(0.30 * H), round(0.42 * W), round(0.42 * H)], "fill": "#8b5cf6", "name": "Tile"}),
@@ -111,7 +137,7 @@ jobs:
 
           def shots():  # (name, system-theme, artwork, builder(W, H) -> script)
               return [
-                  ("01-hero", "light", "wave.jpg", lambda W, H: [
+                  ("photosweet-hero", "light", "wave.jpg", lambda W, H: [
                       *light(), fit(W, H), zoom(W, H),
                       E("layer.newAdjustmentLayer.curves", {"points": [[0, 0], [64, 52], [176, 204], [255, 255]]}),
                       rename("Tonal curve"),
@@ -119,25 +145,25 @@ jobs:
                       rename("Vibrance", blend="Soft Light", opacity=0.65),
                       E("shape.create", {"kind": "rect", "rect": [round(0.055 * W), round(0.585 * H), round(0.46 * W), round(0.315 * H)], "fill": "#ffffff", "name": "Caption card"}),
                       E("layer.layerStyle.dropShadow", {"distance": 34, "size": 70, "opacity": 0.38}),
-                      E("type.create", {"x": round(0.075 * W), "y": round(0.640 * H), "text": "The Great Wave", "size": 104, "name": "Title"}),
+                      E("type.create", {"x": round(0.075 * W), "y": round(0.645 * H), "text": "The Great Wave", "size": 104, "name": "Title"}),
                       E("type.create", {"x": round(0.079 * W), "y": round(0.80 * H), "text": "Katsushika Hokusai  ·  1831", "size": 36, "name": "Credit"}),
                       select("Tonal curve"), panel("layers"), ["ui.set", {"tool": "move"}],
                   ]),
-                  ("02-adjust", "light", "sunrise.jpg", lambda W, H: [
+                  ("photosweet-adjustments", "light", "sunrise.jpg", lambda W, H: [
                       *light(), fit(W, H), zoom(W, H),
                       E("layer.newAdjustmentLayer.levels", {}), rename("Levels"),
                       E("layer.newAdjustmentLayer.vibrance", {"vibrance": 34, "saturation": 4}), rename("Vibrance"),
                       panel("layers"), ["ui.set", {"tool": "move"}],
                       ["ui.menu.invoke", {"id": "image.adjustments.curves"}],
                   ]),
-                  ("03-mask", "light", "girl.jpg", lambda W, H: [
+                  ("photosweet-mask", "light", "girl.jpg", lambda W, H: [
                       *light(), fit(W, H), zoom(W, H),
                       E("select.rect", {"x": round(0.27 * W), "y": round(0.18 * H), "width": round(0.46 * W), "height": round(0.48 * H), "ellipse": True}),
                       E("select.inverse"),
                       E("layer.newAdjustmentLayer.hueSaturation", {"hue": 0, "saturation": -100}), rename("Colour back"),
                       panel("layers"), ["ui.set", {"tool": "move"}],
                   ]),
-                  ("04-type", "light", "sierra.jpg", lambda W, H: [
+                  ("photosweet-type", "light", "sierra.jpg", lambda W, H: [
                       *light(), fit(W, H), zoom(W, H),
                       E("layer.newAdjustmentLayer.curves", {"points": [[0, 0], [128, 132], [255, 255]]}), rename("Depth"),
                       E("type.create", {"x": round(0.06 * W), "y": round(0.13 * H), "text": "SIERRA NEVADA", "size": 96, "name": "Headline"}),
@@ -145,7 +171,7 @@ jobs:
                       E("type.create", {"x": round(0.065 * W), "y": round(0.60 * H), "text": "Painted in a single summer, from sketches made on the trail.", "size": 40, "name": "Caption"}),
                       select("Headline"), panel("layers"), ["ui.set", {"tool": "type"}],
                   ]),
-                  ("05-style", "light", "earthrise.jpg", lambda W, H: [
+                  ("photosweet-layer-style", "light", "earthrise.jpg", lambda W, H: [
                       *light(), fit(W, H), zoom(W, H),
                       E("type.create", {"x": round(0.13 * W), "y": round(0.50 * H), "text": "EARTHRISE", "size": 130, "name": "EARTHRISE"}),
                       E("layer.layerStyle.outerGlow", {"size": 40, "color": "#fbbf24", "opacity": 0.85}),
@@ -153,29 +179,32 @@ jobs:
                       panel("layers"), ["ui.set", {"tool": "move"}],
                       ["ui.dialog.open", {"kind": "layerStyle", "effect": "outerGlow"}],
                   ]),
-                  ("06-vector", "light", "waterlilies.jpg", lambda W, H: [
+                  ("photosweet-vector", "light", "waterlilies.jpg", lambda W, H: [
                       *light(), fit(W, H), zoom(W, H),
                       *badge(W, H),
                       select("Tile"), panel("layers"), ["ui.set", {"tool": "pen"}],
                   ]),
-                  ("07-filter", "light", "starrynight.jpg", lambda W, H: [
+                  ("photosweet-filter", "light", "starrynight.jpg", lambda W, H: [
                       *light(), fit(W, H), zoom(W, H),
                       E("select.rect", {"x": round(0.24 * W), "y": round(0.16 * H), "width": round(0.50 * W), "height": round(0.58 * H), "ellipse": True}),
                       panel("layers"), ["ui.set", {"tool": "move"}],
                       ["ui.menu.invoke", {"id": "filter.distort.twirl"}],
                   ]),
-                  ("08-transform", "light", "tetons.jpg", lambda W, H: [
+                  ("photosweet-transform", "light", "tetons.jpg", lambda W, H: [
                       *light(), fit(W, H), zoom(W, H),
                       panel("history"), ["ui.set", {"tool": "move"}],
                       E("select.all"), E("edit.freeTransform"),
                   ]),
-                  ("09-export", "light", "kiss.jpg", lambda W, H: [
+                  ("photosweet-export", "light", "kiss.jpg", lambda W, H: [
                       *light(), fit(W, H), zoom(W, H),
                       E("layer.newAdjustmentLayer.brightnessContrast", {"brightness": 8, "contrast": 12}), rename("Light"),
                       panel("layers"), ["ui.set", {"tool": "move"}],
                       ["ui.menu.invoke", {"id": "file.export.exportAs"}],
                   ]),
               ]
+
+          for art in sorted(os.listdir("art")):
+              strip_icc(f"art/{art}")
 
           heights = {}
           for _, _, art, _ in shots():
