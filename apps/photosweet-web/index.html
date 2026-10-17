@@ -12,6 +12,9 @@
       padding: 0 16px; text-align: center; color: #b8b8b8; font: 14px system-ui, sans-serif; pointer-events: none; }
     #photosweet_loading p { margin: 0 0 8px; max-width: 420px; line-height: 1.5; }
     #photosweet_loading a { color: #e0e0e0; pointer-events: auto; }
+    #photosweet_mark { width: clamp(64px, 16vmin, 96px); height: auto; flex: none; margin-bottom: 20px;
+      filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.45)); animation: photosweet-breathe 2.2s ease-in-out infinite; }
+    @keyframes photosweet-breathe { 0%, 100% { opacity: 0.75; transform: scale(0.97); } 50% { opacity: 1; transform: scale(1); } }
     /* The app removes this element once it runs. If the WebAssembly never downloads or doesn't match
        this page, no Rust runs to say so, so the page itself shows what to do after a while. */
     #photosweet_stalled { color: #8c8c8c; visibility: hidden; animation: photosweet-stalled 0s 20s forwards; }
@@ -21,6 +24,24 @@
 <body>
   <canvas id="photosweet_canvas"></canvas>
   <div id="photosweet_loading">
+    <svg id="photosweet_mark" viewBox="0 0 512 512" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="photosweet-mark-tile" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#8B5CF6"/>
+          <stop offset="1" stop-color="#F43F5E"/>
+        </linearGradient>
+      </defs>
+      <rect width="512" height="512" rx="112" fill="url(#photosweet-mark-tile)"/>
+      <g fill="#FFFFFF" fill-opacity="0.95">
+        <polygon points="423.9,261.0 344.3,398.9 304.3,334.3 348.0,258.7"/>
+        <polygon points="335.6,403.9 176.4,403.9 212.4,337.0 299.6,337.0"/>
+        <polygon points="167.7,398.9 88.1,261.0 164.0,258.7 207.7,334.3"/>
+        <polygon points="88.1,251.0 167.7,113.1 207.7,177.7 164.0,253.3"/>
+        <polygon points="176.4,108.1 335.6,108.1 299.6,175.0 212.4,175.0"/>
+        <polygon points="344.3,113.1 423.9,251.0 348.0,253.3 304.3,177.7"/>
+        <polygon points="392.0,88.0 398.4,115.6 426.0,122.0 398.4,128.4 392.0,156.0 385.6,128.4 358.0,122.0 385.6,115.6"/>
+      </g>
+    </svg>
     <p>Loading PhotoSweet&hellip;</p>
     <p id="photosweet_stalled">This is taking longer than usual. If PhotoSweet doesn't start, its files may have failed to
       download or come from a different version of this page. <a href="">Reload</a> to try again; the browser
