@@ -40,7 +40,7 @@ def sparkle(cx, cy, R, r):
 def svg_text():
     quads = blade_points()
     blades = "\n".join(
-        "    <polygon points=\"%s\"/>" % " ".join(f"{x:.1f},{y:.1f}" for x, y in q)
+        "      <polygon points=\"%s\"/>" % " ".join(f"{x:.1f},{y:.1f}" for x, y in q)
         for q in quads
     )
     pts = " ".join(f"{x:.1f},{y:.1f}" for x, y in sparkle(392, 122, 34, 9))
@@ -50,11 +50,16 @@ def svg_text():
       <stop offset="0" stop-color="#8B5CF6"/>
       <stop offset="1" stop-color="#F43F5E"/>
     </linearGradient>
+    <clipPath id="tileClip">
+      <rect width="512" height="512" rx="112"/>
+    </clipPath>
   </defs>
-  <rect width="512" height="512" rx="112" fill="url(#tile)"/>
-  <g fill="#FFFFFF" fill-opacity="0.95">
+  <g clip-path="url(#tileClip)">
+    <rect width="512" height="512" fill="url(#tile)"/>
+    <g fill="#FFFFFF" fill-opacity="0.95">
 {blades}
-    <polygon points="{pts}"/>
+      <polygon points="{pts}"/>
+    </g>
   </g>
 </svg>
 '''

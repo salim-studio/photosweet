@@ -703,7 +703,7 @@ mod tests {
             }
             text.next().is_none()
         }
-        assert_eq!(open_filter_extensions(&["cr2", "psweet"]), ["[cC][rR]2", "[pP][cC][rR][aA][fF][tT]"]);
+        assert_eq!(open_filter_extensions(&["cr2", "psweet"]), ["[cC][rR]2", "[pP][sS][wW][eE][eE][tT]"]);
         let globs = open_filter_extensions(OPEN_EXTS);
         assert_eq!(globs.len(), OPEN_EXTS.len());
         for (ext, glob) in OPEN_EXTS.iter().zip(&globs) {
