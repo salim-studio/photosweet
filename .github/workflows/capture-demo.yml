@@ -4,6 +4,11 @@ name: Capture demo images
 # PNGs as an artifact, so the README's screenshots can be re-shot without a local build.
 on:
   workflow_dispatch:
+    inputs:
+      shot:
+        description: "Which shot to capture (a name like photosweet-hero, or all)"
+        required: false
+        default: all
 
 permissions:
   contents: read
@@ -27,7 +32,6 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
-          save-if: false
           cache-on-failure: true
 
       - name: Fetch public-domain artwork
@@ -49,6 +53,7 @@ jobs:
         env:
           WGPU_BACKEND: vulkan
           SNAPSHOT_TIMING: "1"
+          SHOT: ${{ inputs.shot }}
         run: |
           set -eu
           cat > capture.py <<'PY'
@@ -268,17 +273,22 @@ jobs:
                   ]),
               ]
 
+          only = os.environ.get("SHOT", "all").strip()
+          chosen = [s for s in shots() if only in ("", "all") or s[0] == only]
+          if not chosen:
+              raise SystemExit(f"unknown shot `{only}`")
+
           for art in sorted(os.listdir("art")):
               strip_icc(f"art/{art}")
 
           heights = {}
-          for _, _, art, _ in shots():
+          for _, _, art, _ in chosen:
               if art and art not in heights:
                   w, h = jpeg_size(f"art/{art}")
                   heights[art] = round(h * WIDTH / w)
           print("heights:", heights, flush=True)
 
-          for name, sys_theme, art, build in shots():
+          for name, sys_theme, art, build in chosen:
               W, H = WIDTH, heights.get(art, APP_DOC[1])
               script = build(W, H)
               cmd = ["cargo", "run", "-q", "-p", "photosweet-ui-egui", "--example", "snapshot", "--",
@@ -297,6 +307,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: demo-images
+          name: shot-${{ inputs.shot }}
           path: out/
           if-no-files-found: warn
