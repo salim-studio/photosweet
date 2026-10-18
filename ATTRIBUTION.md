@@ -88,15 +88,15 @@ Artwork shown in the screenshots (all public domain, via Wikimedia Commons; deta
 
 | Screenshot | Artwork | Source |
 |---|---|---|
-| `photosweet-hero.jpg` | *The Great Wave off Kanagawa*, Katsushika Hokusai, c. 1831 | [Commons](https://commons.wikimedia.org/wiki/File:Tsunami_by_hokusai_19th_century.jpg) |
-| `photosweet-layer-style.jpg` | *Earthrise*, William Anders, Apollo 8, 1968 (NASA) | [Commons](https://commons.wikimedia.org/wiki/File:NASA-Apollo8-Dec24-Earthrise.jpg) |
-| `photosweet-mask.jpg` | *Girl with a Pearl Earring*, Johannes Vermeer, c. 1665 | [Commons](https://commons.wikimedia.org/wiki/File:1665_Girl_with_a_Pearl_Earring.jpg) |
-| `photosweet-vector.jpg` | *Water Lilies*, Claude Monet, 1906 | [Commons](https://commons.wikimedia.org/wiki/File:Claude_Monet_-_Water_Lilies_-_1906,_Ryerson.jpg) |
-| `photosweet-filter.jpg` | *The Starry Night*, Vincent van Gogh, 1889 | [Commons](https://commons.wikimedia.org/wiki/File:Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg) |
-| `photosweet-adjustments.jpg` | *Impression, Sunrise*, Claude Monet, 1872 | [Commons](https://commons.wikimedia.org/wiki/File:Monet_-_Impression,_Sunrise.jpg) |
-| `photosweet-transform.jpg` | *The Tetons and the Snake River*, Ansel Adams, 1942 (U.S. National Archives) | [Commons](https://commons.wikimedia.org/wiki/File:Adams_The_Tetons_and_the_Snake_River.jpg) |
-| `photosweet-type.jpg` | *Among the Sierra Nevada, California*, Albert Bierstadt, 1868 | [Commons](https://commons.wikimedia.org/wiki/File:Albert_Bierstadt_-_Among_the_Sierra_Nevada,_California_-_Google_Art_Project.jpg) |
-| `photosweet-export.jpg` | *The Kiss*, Gustav Klimt, 1907–1908 | [Commons](https://commons.wikimedia.org/wiki/File:Gustav_Klimt_016.jpg) |
+| `photosweet-hero.jpg` | — (entirely drawn in the app) | — |
+| `photosweet-layer-style.jpg` | — (effects showcase drawn in the app) | — |
+| `photosweet-mask.jpg` | *The Birth of Venus*, Sandro Botticelli, c. 1485 | [Commons](https://commons.wikimedia.org/wiki/File:Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project.jpg) |
+| `photosweet-vector.jpg` | — (vector illustration drawn in the app) | — |
+| `photosweet-filter.jpg` | *Brig upon the Water*, Gustave Le Gray, 1856 | [Commons](https://commons.wikimedia.org/wiki/File:Gustave_Le_Gray_-_Brig_upon_the_Water_-_Google_Art_Project.jpg) |
+| `photosweet-adjustments.jpg` | *Wanderer above the Sea of Fog*, Caspar David Friedrich, c. 1818 | [Commons](https://commons.wikimedia.org/wiki/File:Caspar_David_Friedrich_-_Wanderer_above_the_sea_of_fog.jpg) |
+| `photosweet-transform.jpg` | *A Sunday on La Grande Jatte*, Georges Seurat, 1884 | [Commons](https://commons.wikimedia.org/wiki/File:A_Sunday_on_La_Grande_Jatte,_Georges_Seurat,_1884.jpg) |
+| `photosweet-type.jpg` | — (typographic card drawn in the app) | — |
+| `photosweet-export.jpg` | *The Fighting Temeraire*, J. M. W. Turner, 1839 | [Commons](https://commons.wikimedia.org/wiki/File:The_Fighting_Temeraire,_JMW_Turner,_National_Gallery.jpg) |
 
 ## Test data (not committed, not shipped)
 
