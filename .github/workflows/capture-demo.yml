@@ -1,0 +1,302 @@
+name: Capture demo images
+
+# Temporary workflow: renders the real UI offscreen through the snapshot example and uploads the
+# PNGs as an artifact, so the README's screenshots can be re-shot without a local build.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libxkbcommon-dev libwayland-dev libx11-dev libxrandr-dev libxi-dev \
+            libgl1-mesa-dev libgtk-3-dev \
+            mesa-vulkan-drivers libvulkan1 libegl-mesa0 libgl1-mesa-dri
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          save-if: false
+          cache-on-failure: true
+
+      - name: Fetch public-domain artwork
+        run: |
+          ua="Photosweet-dev"
+          mkdir -p art
+          get() { curl -fsSL --retry 3 -A "$ua" -o "art/$1" "https://commons.wikimedia.org/wiki/Special:FilePath/$2?width=2400"; }
+          get wanderer.jpg  "Caspar_David_Friedrich_-_Wanderer_above_the_sea_of_fog.jpg"
+          get venus.jpg     "Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project.jpg"
+          get jatte.jpg     "A_Sunday_on_La_Grande_Jatte,_Georges_Seurat,_1884.jpg"
+          get brig.jpg      "Gustave_Le_Gray_-_Brig_upon_the_Water_-_Google_Art_Project.jpg"
+          get temeraire.jpg "The_Fighting_Temeraire,_JMW_Turner,_National_Gallery.jpg"
+          ls -l art
+
+      - name: Build the snapshot example
+        run: cargo build -p photosweet-ui-egui --example snapshot
+
+      - name: Capture
+        env:
+          WGPU_BACKEND: vulkan
+          SNAPSHOT_TIMING: "1"
+        run: |
+          set -eu
+          cat > capture.py <<'PY'
+          import json, os, subprocess
+
+          OUT = "out"
+          WIDTH = 1600  # every document is scaled to this width so compositions are predictable
+          APP_DOC = (1600, 1000)  # documents we build from scratch inside the app
+
+          def E(cmd, params=None):
+              return ["engine.execute", {"command": cmd, **({"params": params} if params is not None else {})}]
+
+          def UI(cid, **params):
+              return ["ui.menu.invoke", {"id": cid, **({"params": params} if params else {})}]
+
+          def DLG(kind, **params):
+              return ["ui.dialog.open", {"kind": kind, **params}]
+
+          def theme(name):
+              return ["ui.set", {"theme": name}]
+
+          def light():  # Essentials layout, light theme, Properties docked
+              return [UI("window.workspace.essentials"), UI("window.panel.dock", panel="properties"), theme("studioLight")]
+
+          def dark():  # the deep "Pro" theme
+              return [UI("window.workspace.essentials"), UI("window.panel.dock", panel="properties"), theme("pro")]
+
+          def fit(W, H):  # scale the opened artwork to a fixed width
+              return E("image.imageSize", {"width": W, "height": H, "resample": "bicubic"})
+
+          def panel(name):
+              return UI("window.panel.activate", panel=name)
+
+          # `view.zoom` counts *device* pixels per document pixel (`canvas::fit_view` multiplies by
+          # ppp), so a plain points-per-pixel scale has to be multiplied by the capture scale.
+          PPP = 2.0
+          # The pasteboard at 1440x900, in points, measured from a capture (rulers included).
+          CANVAS = (1045.0, 746.0)
+
+          def zoom(W, H, fill=0.88):  # `fill` of the canvas, as "fit" would leave it
+              pt = min(fill * CANVAS[0] / W, fill * CANVAS[1] / H)
+              return ["ui.set", {"zoom": round(pt * PPP, 4), "center": [W // 2, H // 2]}]
+
+          def select(name):
+              return E("layer.select", {"name": name})
+
+          def rename(name, **props):
+              return E("layer.setProps", {"name": name, **props})
+
+          def doc(W, H, background="#f7f4ee", name="Untitled"):
+              return E("file.new", {"width": W, "height": H, "background": background, "name": name})
+
+          # The mark's own geometry, lifted from docs/brand/photosweet-mark.svg (512 box): the six
+          # aperture blades and the four-point spark, so the poster is the mark, drawn in the app.
+          BLADES = [
+              [[423.9, 261.0], [344.3, 398.9], [304.3, 334.3], [348.0, 258.7]],
+              [[335.6, 403.9], [176.4, 403.9], [212.4, 337.0], [299.6, 337.0]],
+              [[167.7, 398.9], [88.1, 261.0], [164.0, 258.7], [207.7, 334.3]],
+              [[88.1, 251.0], [167.7, 113.1], [207.7, 177.7], [164.0, 253.3]],
+              [[176.4, 108.1], [335.6, 108.1], [299.6, 175.0], [212.4, 175.0]],
+              [[344.3, 113.1], [423.9, 251.0], [348.0, 253.3], [304.3, 177.7]],
+          ]
+          SPARK = [[392.0, 88.0], [398.4, 115.6], [426.0, 122.0], [398.4, 128.4], [392.0, 156.0], [385.6, 128.4], [358.0, 122.0], [385.6, 115.6]]
+
+          def mark(left, top, size):
+              k = size / 512.0
+
+              def s(pts):
+                  return [[round(left + x * k, 2), round(top + y * k, 2)] for x, y in pts]
+
+              return [
+                  E("shape.create", {"kind": "roundedRect", "rect": [round(left), round(top), round(size), round(size)],
+                                     "radius": round(112 * k, 2), "name": "Tile",
+                                     "fill": {"gradient": {"stops": [[0, "#8B5CF6"], [1, "#F43F5E"]], "angle": 45}}}),
+                  E("layer.layerStyle.dropShadow", {"distance": round(size * 0.06), "size": round(size * 0.12), "opacity": 0.5}),
+                  E("shape.create", {"kind": "path", "name": "Aperture", "fill": "#ffffff",
+                                     "path": {"fillRule": "nonzero", "subpaths": [{"closed": True, "knots": s(p)} for p in BLADES]}}),
+                  E("layer.setProps", {"name": "Aperture", "opacity": 0.95}),
+                  E("shape.create", {"kind": "path", "name": "Spark", "fill": "#FBBF24",
+                                     "path": {"fillRule": "nonzero", "subpaths": [{"closed": True, "knots": s(SPARK)}]}}),
+              ]
+
+          def strip_icc(path):  # an embedded profile would raise a modal prompt that blocks the script
+              data = open(path, "rb").read()
+              if data[:2] != bytes([0xFF, 0xD8]):
+                  return
+              out, i = bytearray(data[:2]), 2
+              while i < len(data) - 3:
+                  if data[i] != 0xFF:
+                      break
+                  marker = data[i + 1]
+                  if marker == 0xDA:
+                      out += data[i:]
+                      break
+                  if marker == 0xFF:
+                      i += 1
+                      continue
+                  if marker == 0xD8 or 0xD0 <= marker <= 0xD9:
+                      out += data[i:i + 2]
+                      i += 2
+                      continue
+                  length = (data[i + 2] << 8) | data[i + 3]
+                  seg = data[i:i + 2 + length]
+                  if not (marker == 0xE2 and seg[4:15] == b"ICC_PROFILE"):
+                      out += seg
+                  i += 2 + length
+              open(path, "wb").write(bytes(out))
+
+          def jpeg_size(path):  # ImageMagick is not installed on the runner
+              data = open(path, "rb").read()
+              i = 2
+              while i < len(data) - 9:
+                  if data[i] != 0xFF:
+                      i += 1
+                      continue
+                  marker = data[i + 1]
+                  if marker in (0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF):
+                      return (data[i + 7] << 8) | data[i + 8], (data[i + 5] << 8) | data[i + 6]
+                  if marker in (0xD8, 0xD9) or 0xD0 <= marker <= 0xD7:
+                      i += 2
+                      continue
+                  i += 2 + ((data[i + 2] << 8) | data[i + 3])
+              raise ValueError(f"no SOF marker in {path}")
+
+          def shots():  # (name, system-theme, artwork|None, builder(W, H) -> script)
+              return [
+                  # ---- the cover: the mark itself, rebuilt as vector layers ----
+                  ("photosweet-hero", "dark", None, lambda W, H: [
+                      *dark(), doc(W, H, "#0d0b14", "PhotoSweet cover"), zoom(W, H),
+                      E("shape.create", {"kind": "rect", "rect": [0, 0, W, H], "name": "Wash",
+                         "fill": {"gradient": {"stops": [[0, "#1b1140"], [0.55, "#3a1150"], [1, "#26091c"]], "angle": 120}}}),
+                      *mark(120, 300, 420),
+                      E("shape.create", {"kind": "rect", "rect": [646, 612, 760, 3], "name": "Rule", "fill": "#F43F5E"}),
+                      E("type.create", {"x": 640, "y": 392, "text": "PhotoSweet", "size": 132, "color": "#FFFFFF", "name": "Title"}),
+                      E("type.create", {"x": 646, "y": 560, "text": "LENS AND SPARKLE", "size": 40, "color": "#E9D5FF", "tracking": 260, "name": "Tagline"}),
+                      E("type.create", {"box": [644, 650, 820, 220], "text": "A fast, open-source editor for pixels, vectors and type — one document, one history, nothing hidden.", "size": 34, "color": "#C7BFE0", "leading": 46, "name": "Blurb"}),
+                      select("Title"), panel("layers"), ["ui.set", {"tool": "move"}],
+                  ]),
+                  # ---- a colour grade on a painting, with the Adjustments panel in view ----
+                  ("photosweet-adjustments", "light", "wanderer.jpg", lambda W, H: [
+                      *light(), fit(W, H), zoom(W, H, fill=0.84),
+                      E("layer.newAdjustmentLayer.gradientMap", {"stops": [[0, "#12203c"], [0.5, "#8b5cf6"], [1, "#ffcf87"]], "dither": True}),
+                      rename("Split tone", blend="Soft Light", opacity=0.6),
+                      E("layer.newAdjustmentLayer.photoFilter", {"filter": "cooling80", "density": 26}), rename("Cool filter"),
+                      E("layer.newAdjustmentLayer.curves", {"points": [[0, 0], [72, 60], [196, 214], [255, 255]]}), rename("Contrast"),
+                      panel("histogram"), panel("adjustments"), select("Cool filter"), ["ui.set", {"tool": "move"}],
+                  ]),
+                  # ---- a saved alpha channel, shown in the Channels panel ----
+                  ("photosweet-mask", "light", "venus.jpg", lambda W, H: [
+                      *light(), fit(W, H), zoom(W, H, fill=0.84),
+                      E("select.rect", {"x": round(0.30 * W), "y": round(0.08 * H), "width": round(0.40 * W), "height": round(0.74 * H), "ellipse": True}),
+                      E("select.saveSelection", {"name": "Venus", "channel": "new", "operation": "new"}),
+                      E("select.loadSelection", {"channel": "Venus"}),
+                      panel("channels"), ["ui.set", {"tool": "move"}],
+                  ]),
+                  # ---- a typographic card, everything drawn in the app ----
+                  ("photosweet-type", "light", None, lambda W, H: [
+                      *light(), doc(W, H, "#f7f4ee", "Release notes"), zoom(W, H),
+                      E("shape.create", {"kind": "roundedRect", "rect": [120, 130, 1360, 740], "radius": 34, "name": "Card", "fill": "#ffffff"}),
+                      E("layer.layerStyle.dropShadow", {"distance": 22, "size": 58, "opacity": 0.22}),
+                      E("shape.create", {"kind": "rect", "rect": [120, 130, 24, 740], "name": "Spine",
+                         "fill": {"gradient": {"stops": [[0, "#8B5CF6"], [1, "#F43F5E"]], "angle": 90}}}),
+                      E("type.create", {"x": 232, "y": 246, "text": "Every pixel,", "size": 104, "color": "#12101a", "name": "Line one"}),
+                      E("type.create", {"x": 232, "y": 372, "text": "one history.", "size": 104, "color": "#8B5CF6", "name": "Line two"}),
+                      E("type.create", {"box": [234, 530, 1150, 230], "text": "Type, vectors and pixels share a single document, a single undo stack and a single compass. Zoom in and the letters stay crisp — they were never pixels to begin with.", "size": 40, "color": "#3b3654", "leading": 58, "name": "Body"}),
+                      E("type.create", {"x": 234, "y": 786, "text": "PHOTOSWEET  ·  RELEASE NOTES", "size": 28, "color": "#F43F5E", "tracking": 320, "name": "Kicker"}),
+                      select("Line two"), panel("character"), ["ui.set", {"tool": "type"}],
+                  ]),
+                  # ---- layer effects, with the Layer Style dialog open ----
+                  ("photosweet-layer-style", "light", None, lambda W, H: [
+                      *light(), doc(W, H, "#101018", "Effects"), zoom(W, H, fill=0.74),
+                      E("shape.create", {"kind": "roundedRect", "rect": [200, 170, 1200, 660], "radius": 50, "name": "Panel",
+                         "fill": {"gradient": {"stops": [[0, "#20124a"], [1, "#4a1030"]], "angle": 135}}}),
+                      E("layer.layerStyle.dropShadow", {"distance": 26, "size": 64, "opacity": 0.6}),
+                      E("type.create", {"x": 300, "y": 380, "text": "SPARKLE", "size": 210, "color": "#FFFFFF", "name": "SPARKLE"}),
+                      E("layer.layerStyle.outerGlow", {"size": 42, "color": "#8B5CF6", "opacity": 0.9}),
+                      E("layer.layerStyle.stroke", {"size": 5, "color": "#F43F5E", "add": True}),
+                      E("type.create", {"x": 306, "y": 660, "text": "Drop shadow  ·  outer glow  ·  stroke, all live", "size": 40, "color": "#C7BFE0", "name": "Caption"}),
+                      panel("layers"),
+                      DLG("layerStyle", effect="outerGlow"),
+                  ]),
+                  # ---- a vector composition, with the Paths panel docked ----
+                  ("photosweet-vector", "light", None, lambda W, H: [
+                      *light(), doc(W, H, "#f7f4ee", "Badge"), zoom(W, H),
+                      E("shape.create", {"kind": "polygon", "sides": 6, "rect": [150, 170, 560, 560], "name": "Hex",
+                         "fill": {"gradient": {"stops": [[0, "#8B5CF6"], [1, "#F43F5E"]], "angle": 120}},
+                         "stroke": {"width": 10, "color": "#12101a", "dashes": [40, 24]}}),
+                      E("layer.layerStyle.dropShadow", {"distance": 22, "size": 54, "opacity": 0.28}),
+                      E("shape.create", {"kind": "star", "sides": 5, "starRatio": 0.42, "rect": [320, 340, 250, 250], "name": "Star", "fill": "#FBBF24"}),
+                      E("shape.create", {"kind": "path", "name": "Arrow", "fill": "#12101a",
+                         "path": {"subpaths": [{"closed": True, "knots": [[820, 340], [1120, 340], [1120, 280], [1290, 420], [1120, 560], [1120, 500], [820, 500]]}]}}),
+                      E("shape.create", {"kind": "ellipse", "rect": [820, 600, 440, 230], "name": "Pill", "fill": None,
+                         "stroke": {"width": 8, "color": "#F43F5E"}}),
+                      E("path.set", {"name": "Arrow",
+                         "path": {"subpaths": [{"closed": True, "knots": [[820, 340], [1120, 340], [1120, 280], [1290, 420], [1120, 560], [1120, 500], [820, 500]]}]}}),
+                      select("Hex"), panel("paths"), ["ui.set", {"tool": "pen"}],
+                  ]),
+                  # ---- the Blur Gallery, on an early photograph ----
+                  ("photosweet-filter", "light", "brig.jpg", lambda W, H: [
+                      *light(), fit(W, H), zoom(W, H, fill=0.8),
+                      E("filter.convertForSmartFilters"),
+                      UI("filter.blurGallery.irisBlur"),
+                      panel("layers"), ["ui.set", {"tool": "move"}],
+                  ]),
+                  # ---- Free Transform on a pointillist canvas, with the History panel ----
+                  ("photosweet-transform", "light", "jatte.jpg", lambda W, H: [
+                      *light(), fit(W, H), zoom(W, H, fill=0.8),
+                      panel("history"), ["ui.set", {"tool": "move"}],
+                      E("select.all"), E("edit.freeTransform"),
+                  ]),
+                  # ---- Export As, on the deep theme ----
+                  ("photosweet-export", "dark", "temeraire.jpg", lambda W, H: [
+                      *dark(), fit(W, H), zoom(W, H, fill=0.74),
+                      E("layer.newAdjustmentLayer.vibrance", {"vibrance": 24}), rename("Vibrance"),
+                      panel("layers"), ["ui.set", {"tool": "move"}],
+                      UI("file.export.exportAs"),
+                  ]),
+              ]
+
+          for art in sorted(os.listdir("art")):
+              strip_icc(f"art/{art}")
+
+          heights = {}
+          for _, _, art, _ in shots():
+              if art and art not in heights:
+                  w, h = jpeg_size(f"art/{art}")
+                  heights[art] = round(h * WIDTH / w)
+          print("heights:", heights, flush=True)
+
+          for name, sys_theme, art, build in shots():
+              W, H = WIDTH, heights.get(art, APP_DOC[1])
+              script = build(W, H)
+              cmd = ["cargo", "run", "-q", "-p", "photosweet-ui-egui", "--example", "snapshot", "--",
+                     "--out", f"{OUT}/{name}.png", "--size", "1440x900", "--scale", "2",
+                     "--system-theme", sys_theme, "--script", json.dumps(script)]
+              if art:
+                  cmd += ["--open", f"art/{art}"]
+              print(f"=== {name} ({art or 'in-app'}, {W}x{H}, {sys_theme}) ===", flush=True)
+              if subprocess.run(cmd).returncode != 0:
+                  print(f"FAILED {name}", flush=True)
+          PY
+          mkdir -p out
+          python3 capture.py
+          ls -l out
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: demo-images
+          path: out/
+          if-no-files-found: warn
