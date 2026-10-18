@@ -109,9 +109,7 @@ off and on again. Your pixels are never baked, so you can always walk back to th
 
 <h3>3. Change only what you mean to change</h3>
 
-<p>
-  <img src="docs/images/photosweet-mask.jpg" alt="Vermeer's Girl with a Pearl Earring desaturated everywhere except the face, through an elliptical layer mask" width="100%">
-</p>
+
 
 An elliptical selection becomes the mask of a Hue/Saturation layer, so the face keeps its colour
 and the room behind her goes quiet. Marquees, lassos, the Magic Wand, Quick Selection, Object
